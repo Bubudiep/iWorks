@@ -25,10 +25,7 @@ const Home = () => {
         topContainer.style.height = `${newHeight}px`;
 
         // Optionally, you can add or remove classes for additional styling
-        if (homeBody.scrollTop > 120) {
-          topContainer.classList.add('active');
-        } else {
-          topContainer.classList.remove('active');
+        if (homeBody.scrollTop > 0 && homeBody.scrollTop <120) {
         }
       }
     };
