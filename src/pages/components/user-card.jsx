@@ -2,6 +2,13 @@ import React from "react";
 import { Avatar, Box, Text } from "zmp-ui";
 import { useRecoilValue, atom, selector } from "recoil";
 import { getUserInfo } from "zmp-sdk";
+import { getUserIW } from "../services/api";
+import {
+  getAccessToken,
+  authorize,
+  getLocation,
+  getSetting,
+} from "zmp-sdk/apis";
 
 export const userState = selector({
   key: "user",
@@ -26,6 +33,41 @@ const getGreeting = () => {
 };
 const UserCard = () => {
   const { userInfo } = useRecoilValue(userState);
+  const handleUserNameClick = async () => {
+    if (userInfo && userInfo.id) {
+      try {
+        const userDTX = await getUserIW(userInfo.id);
+        console.log(userDTX);
+      } catch (error) {
+        console.error("Error checking user:", error);
+      }
+      getSetting({
+        success: (data) => {
+          if(Object.keys(data.authSetting).length>0){
+            if (
+              data.authSetting["scope.userInfo"] &&
+              data.authSetting["scope.userInfo"] === true
+            ) {
+              console.log(userInfo);
+            } else {
+              authorize({
+                scopes: ["scope.userInfo", "scope.userPhonenumber"],
+                success: (data) => {
+                  console.log(data);
+                },
+                fail: (error) => {
+                  console.log(error);
+                }
+              });
+            }
+          }
+        },
+        fail: (error) => {
+          console.log(error);
+        },
+      });
+    }
+  };
 
   return (
     <div className="fc g5">
@@ -37,8 +79,13 @@ const UserCard = () => {
             }
           />
         </div>
-        <div className="user-infor">
-          <div className="user-name">{userInfo.name}</div>
+        <div
+          className="user-infor"
+          onClick={handleUserNameClick} // Thêm sự kiện onClick vào đây
+        >
+          <div className="user-name">
+            {userInfo.name == "" ? "Đăng nhập" : userInfo.name}
+          </div>
           <div className="user-text">{getGreeting()}</div>
         </div>
       </div>
