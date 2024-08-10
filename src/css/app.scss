@@ -140,11 +140,12 @@
         gap: 10px;
         top: 0;
         z-index: 1;
+        padding-top: 50px;
         width: 100%;
-        height: 250px;
+        height: 180px;
         position: fixed;
-        overflow: hidden;
         background-attachment: fixed;
+        transition: all 0.2s;
         .app-container {
           display: flex;
           height: 50px;
@@ -153,8 +154,8 @@
           display: flex;
           justify-content: space-between;
           .logo {
+            margin-top: 15px;
             width: 130px;
-            margin-top: auto;
             padding-right: 10px;
             opacity: 0.4;
             img {
@@ -171,6 +172,7 @@
               padding: 2px 5px;
               background-color: #fff;
               color: #007bff;
+              box-shadow: 1px 1px 2px #0003;
             }
           }
           .user-header {
@@ -207,6 +209,7 @@
           }
         }
         .listCard {
+          display: flex;
           box-sizing: border-box;  // Đảm bảo padding được tính vào kích thước tổng thể
           white-space: nowrap;
           padding: 5px 10px;  // Padding phía trên/dưới 5px, trái/phải 10px
@@ -214,29 +217,33 @@
           scroll-snap-type: x mandatory;
           transition: all 0.3s;
           .MoneyCard {
-            display: inline-block;
-            width: 220px;
+            display: flex;
+            flex-direction: column;
+            min-width: 220px;
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0px 1px 5px #0000004a;
-            padding: 10px;
-            transition: all 0.3s;
             scroll-snap-align: center;
-            border: 1px solid #52a0ff;  // Để dễ thấy kích thước phần tử
+            overflow: hidden;
+            gap: 3px;
+            height: 92px;
             &:last-child {
               margin-left: 10px;
               scroll-snap-align: center;
             }
-        
             .company {
               font-weight: 400;
               font-size: 0.8rem;
               color: #071a33;
-            }
-        
-            .money {
-              margin: 5px 0px;
               display: flex;
+              flex: 1;
+              padding: 0px 10px;
+              align-items: center;
+            }
+            .money {
+              display: flex;
+              flex: 1;
+              padding: 0px 10px;
               align-items: center;
               justify-content: space-between;
         
@@ -253,6 +260,8 @@
         
             a.caidat {
               display: flex;
+              flex: 1;
+              padding: 0px 10px;
               gap: 5px;
               font-weight: 500;
               font-size: 0.8rem;
