@@ -10,50 +10,75 @@ const Bangcong = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [daysData, setDaysData] = useState([]);
-  const [detailInfo, setDetailInfo] = useState(null); // Thông tin chi tiết
+  const [detailInfo, setDetailInfo] = useState(null);
   const popupRef = useRef(null);
 
-  // Hàm để tạo dữ liệu active ngẫu nhiên
-  const generateDayData = (days) => {
-    return days.map((day) => ({
-      date: day,
-      active: Math.random() > 0.5, // Random true or false
-    }));
+  // Hàm lấy giá trị cookie
+  const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
   };
 
   useEffect(() => {
-    // Cập nhật dữ liệu khi tháng thay đổi
-    const daysInMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() + 1,
-      0
-    ).getDate();
-    setDaysData(
-      generateDayData(Array.from({ length: daysInMonth }, (_, i) => i + 1))
-    );
+    const fetchData = async () => {
+      const daysInMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 1,
+        0
+      ).getDate();
+
+      // Tạo dữ liệu cho tất cả các ngày trong tháng với trạng thái không active
+      const allDaysData = Array.from({ length: daysInMonth }, (_, i) => ({
+        date: i + 1,
+        active: false,
+      }));
+
+      // Lấy token từ cookie
+      const token = getCookie('iwtoken');
+      const data = [];
+      try {
+        const response = await fetch(`/api/days-data?year=${currentDate.getFullYear()}&month=${currentDate.getMonth() + 1}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        data = await response.json();
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+      const updatedDaysData = allDaysData.map(day => ({
+        ...day,
+        active: data.some(activeDay => activeDay.date === day.date && activeDay.active)
+      }));
+      console.log(updatedDaysData);
+      setDaysData(updatedDaysData);
+    };
+
+    fetchData();
   }, [currentDate]);
 
-  // Hàm để chuyển đến tháng trước
   const goToPreviousMonth = () => {
     setCurrentDate(
       new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
     );
   };
 
-  // Hàm để chuyển đến tháng sau
   const goToNextMonth = () => {
     setCurrentDate(
       new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
     );
   };
 
-  // Hàm để thay đổi tháng từ dropdown
   const handleMonthChange = (event) => {
     const newMonth = parseInt(event.target.value, 10);
     setCurrentDate(new Date(currentDate.getFullYear(), newMonth - 1, 1));
   };
 
-  // Hàm để lấy ngày đầu tiên của tháng
   const getFirstDayOfMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
@@ -62,18 +87,15 @@ const Bangcong = () => {
   const monthName = currentDate.toLocaleString("default", { month: "long" });
   const year = currentDate.getFullYear();
 
-  // Điều chỉnh để tuần bắt đầu từ thứ Hai
   const adjustedFirstDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
 
   let weeks = [];
   let days = [];
 
-  // Điền các ô trống vào tuần đầu tiên nếu cần thiết
   for (let i = 0; i < adjustedFirstDay; i++) {
     days.push(<td key={`empty-${i}`}></td>);
   }
 
-  // Điền các ngày của tháng
   daysData.forEach(({ date, active }, index) => {
     days.push(
       <td
@@ -86,12 +108,10 @@ const Bangcong = () => {
       </td>
     );
 
-    // Nếu tuần đã đầy, thêm tuần vào mảng weeks và bắt đầu tuần mới
     if (
       (index + adjustedFirstDay + 1) % 7 === 0 ||
       index === daysData.length - 1
     ) {
-      // Điền các ô trống vào tuần cuối cùng nếu cần thiết
       while (days.length < 7) {
         days.push(<td key={`empty-${days.length + index + 1}`}></td>);
       }
@@ -100,7 +120,6 @@ const Bangcong = () => {
     }
   });
 
-  // Tạo các tùy chọn cho tháng trong dropdown
   const monthOptions = Array.from({ length: 12 }, (_, i) => {
     const month = i + 1;
     const monthName = new Date(
@@ -114,9 +133,7 @@ const Bangcong = () => {
     );
   });
 
-  // Xử lý việc đóng popup khi bấm ra ngoài
   const handleClickOutside = (event) => {
-    // Kiểm tra nếu click chuột trái và bấm ra ngoài popup
     if (
       event.button === 0 &&
       popupRef.current &&
@@ -133,9 +150,7 @@ const Bangcong = () => {
     };
   }, []);
 
-  // Xử lý sự kiện khi nhấp vào một ngày
   const handleDateClick = (day) => {
-    // Dữ liệu demo cho ngày được chọn
     const demoData = {
       checkIn: `07:56:02 sáng`,
       checkOut: `17:22:01 chiều`,
@@ -147,7 +162,6 @@ const Bangcong = () => {
     setSelectedDate(day);
   };
 
-  // Định dạng ngày đầy đủ
   const formatDate = (day) => {
     if (!selectedDate) return "";
     const date = new Date(
@@ -195,7 +209,6 @@ const Bangcong = () => {
         <tbody>{weeks}</tbody>
       </table>
 
-      {/* Popup */}
       {selectedDate !== null && detailInfo && (
         <div className="popup">
           <div className="popup-content" ref={popupRef}>
