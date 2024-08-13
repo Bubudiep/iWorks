@@ -27,33 +27,33 @@ const Bangcong = () => {
   const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
+    if (parts.length === 2) return parts.pop().split(";").shift();
   };
 
   useEffect(() => {
     const fetchData = async () => {
-
-
       // Lấy token từ cookie
-      const token = getCookie('iwtoken');
+      const token = getCookie("iwtoken");
       const data = [];
       try {
         const response = await fetch(`http://localhost:5000/`, {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         });
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         data = await response.json();
       } catch (error) {
         console.error("Error fetching data", error);
       }
-      const updatedDaysData = allDaysData.map(day => ({
+      const updatedDaysData = allDaysData.map((day) => ({
         ...day,
-        active: data.some(activeDay => activeDay.date === day.date && activeDay.active)
+        active: data.some(
+          (activeDay) => activeDay.date === day.date && activeDay.active
+        ),
       }));
       console.log(updatedDaysData);
       setDaysData(updatedDaysData);
@@ -95,7 +95,7 @@ const Bangcong = () => {
   for (let i = 0; i < adjustedFirstDay; i++) {
     days.push(<td key={`empty-${i}`}></td>);
   }
-  if (daysData.length > 0){
+  if (daysData.length > 0) {
     daysData.forEach(({ date, active }, index) => {
       days.push(
         <td
@@ -107,7 +107,7 @@ const Bangcong = () => {
           {active && <FontAwesomeIcon icon={faCheck} className="active-icon" />}
         </td>
       );
-  
+
       if (
         (index + adjustedFirstDay + 1) % 7 === 0 ||
         index === daysData.length - 1

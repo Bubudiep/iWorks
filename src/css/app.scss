@@ -25,18 +25,18 @@
         margin-top: 10px;
         gap: 5px;
         margin-top: 260px;
-        .extension-list{
+        .extension-list {
           display: grid;
           grid-template-columns: repeat(3, 1fr); /* 3 cột đều nhau */
           gap: 10px; /* Khoảng cách giữa các item */
           padding: 10px; /* Padding cho container */
-          .items{
+          .items {
             display: flex;
             flex-direction: column;
             gap: 3px;
             align-items: center;
             width: 100px;
-            .logo{
+            .logo {
               width: 50px;
               height: 50px;
               border-radius: 10px;
@@ -210,9 +210,9 @@
         }
         .listCard {
           display: flex;
-          box-sizing: border-box;  // Đảm bảo padding được tính vào kích thước tổng thể
+          box-sizing: border-box; // Đảm bảo padding được tính vào kích thước tổng thể
           white-space: nowrap;
-          padding: 5px 10px;  // Padding phía trên/dưới 5px, trái/phải 10px
+          padding: 5px 10px; // Padding phía trên/dưới 5px, trái/phải 10px
           overflow-x: auto;
           scroll-snap-type: x mandatory;
           transition: all 0.3s;
@@ -246,18 +246,18 @@
               padding: 0px 10px;
               align-items: center;
               justify-content: space-between;
-        
+
               .amount {
                 color: #053677;
                 font-size: 1rem;
                 font-weight: 600;
               }
-        
+
               .view {
                 color: #6195c5;
               }
             }
-        
+
             a.caidat {
               display: flex;
               flex: 1;
@@ -266,15 +266,15 @@
               font-weight: 500;
               font-size: 0.8rem;
               color: #0b6ed7;
-        
+
               svg {
                 font-size: 0.8rem;
               }
             }
           }
         }
-        &.active{
-          .listCard{
+        &.active {
+          .listCard {
             height: 0px;
             overflow: hidden;
             padding: 0px 10px;
@@ -452,6 +452,59 @@
     }
   }
 }
+.full-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  background-color: #fff;
+  flex-direction: column;
+  .top-bar {
+    display: flex;
+    height: 30px;
+    background-color: #5496fa;
+  }
+  .body-main {
+    padding: 20px;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 30px;
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      img {
+        width: 80%;
+      }
+    }
+    .message {
+      font-weight: 500;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .tools {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      button.accept {
+        font-weight: 500;
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 10px;
+      }
+    }
+  }
+}
 /* width */
 ::-webkit-scrollbar {
   width: 0px;
@@ -551,11 +604,18 @@
   height: 100%;
   top: 0;
   left: 0;
-  background: linear-gradient(110deg, rgba(227, 227, 227, 0) 0%, rgba(227, 227, 227, 0) 40%, rgba(227, 227, 227, 0.5) 50%, rgba(227, 227, 227, 0) 60%, rgba(227, 227, 227, 0) 100%);
+  background: linear-gradient(
+    110deg,
+    rgba(227, 227, 227, 0) 0%,
+    rgba(227, 227, 227, 0) 40%,
+    rgba(227, 227, 227, 0.5) 50%,
+    rgba(227, 227, 227, 0) 60%,
+    rgba(227, 227, 227, 0) 100%
+  );
   animation: gradient-animation_2 1.2s linear infinite;
 }
 
-.loader .wrapper {    
+.loader .wrapper {
   width: 100%;
   height: 100%;
   position: relative;
@@ -563,7 +623,7 @@
   align-items: center;
   flex-direction: column;
   gap: 5px;
-  .flex{
+  .flex {
     display: flex;
     width: -webkit-fill-available;
     gap: 10px;
@@ -590,9 +650,7 @@
   width: 75px;
 }
 
-.loader 
-
-.loader .line-2 {
+.loader .loader .line-2 {
   top: 34px;
   height: 20px;
   width: -webkit-fill-available;

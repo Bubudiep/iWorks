@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Avatar, Box, Text } from "zmp-ui";
-import { useRecoilValue, atom, selector } from "recoil";
-import { getUserInfo } from "zmp-sdk";
-import { getUserIW } from "../services/api";
+import { useRecoilValue, useSetRecoilState, atom, selector } from "recoil";
+import { getUserInfo } from "zmp-sdk/apis";
 import {
   getAccessToken,
   authorize,
@@ -32,18 +31,21 @@ const getGreeting = () => {
   }
 };
 const UserCard = () => {
-  const { userInfo } = useRecoilValue(userState);
+  const userStateValue = useRecoilValue(userState);
+  const [userInfo, setUserInfo] = useState(userStateValue.userInfo);
+  const [showPermissionRequest, setShowPermissionRequest] = useState(false);
+
+  useEffect(() => {
+    if (userStateValue) {
+      setUserInfo(userStateValue.userInfo);
+    }
+  }, [userStateValue]);
+
   const handleUserNameClick = async () => {
     if (userInfo && userInfo.id) {
-      try {
-        const userDTX = await getUserIW(userInfo.id);
-        console.log(userDTX);
-      } catch (error) {
-        console.error("Error checking user:", error);
-      }
       getSetting({
         success: (data) => {
-          if(Object.keys(data.authSetting).length>0){
+          if (Object.keys(data.authSetting).length > 0) {
             if (
               data.authSetting["scope.userInfo"] &&
               data.authSetting["scope.userInfo"] === true
@@ -53,11 +55,19 @@ const UserCard = () => {
               authorize({
                 scopes: ["scope.userInfo", "scope.userPhonenumber"],
                 success: (data) => {
-                  console.log(data);
+                  getUserInfo({
+                    success: (data) => {
+                      window.location.reload();
+                    },
+                    fail: (error) => {
+                      // xử lý khi gọi api thất bại
+                      console.log(error);
+                    },
+                  });
                 },
                 fail: (error) => {
                   console.log(error);
-                }
+                },
               });
             }
           }
@@ -68,7 +78,6 @@ const UserCard = () => {
       });
     }
   };
-
   return (
     <div className="fc g5">
       <div className="user-header">
@@ -92,6 +101,11 @@ const UserCard = () => {
       <div className="user-level normal">
         <div className="items">Người mới</div>
       </div>
+      {showPermissionRequest && (
+        <div className="permission-request">
+          <p>Vui lòng cấp quyền để tiếp tục.</p>
+        </div>
+      )}
     </div>
   );
 };
