@@ -8,8 +8,18 @@ import {
 
 const Bangcong = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const daysInMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    0
+  ).getDate();
+  // Tạo dữ liệu cho tất cả các ngày trong tháng với trạng thái không active
+  const allDaysData = Array.from({ length: daysInMonth }, (_, i) => ({
+    date: i + 1,
+    active: false,
+  }));
   const [selectedDate, setSelectedDate] = useState(null);
-  const [daysData, setDaysData] = useState([]);
+  const [daysData, setDaysData] = useState(allDaysData);
   const [detailInfo, setDetailInfo] = useState(null);
   const popupRef = useRef(null);
 
@@ -22,23 +32,13 @@ const Bangcong = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const daysInMonth = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + 1,
-        0
-      ).getDate();
 
-      // Tạo dữ liệu cho tất cả các ngày trong tháng với trạng thái không active
-      const allDaysData = Array.from({ length: daysInMonth }, (_, i) => ({
-        date: i + 1,
-        active: false,
-      }));
 
       // Lấy token từ cookie
       const token = getCookie('iwtoken');
       const data = [];
       try {
-        const response = await fetch(`/api/days-data?year=${currentDate.getFullYear()}&month=${currentDate.getMonth() + 1}`, {
+        const response = await fetch(`http://localhost:5000/`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -95,30 +95,31 @@ const Bangcong = () => {
   for (let i = 0; i < adjustedFirstDay; i++) {
     days.push(<td key={`empty-${i}`}></td>);
   }
-
-  daysData.forEach(({ date, active }, index) => {
-    days.push(
-      <td
-        key={date}
-        className={active ? "table-cell active" : "table-cell"}
-        onClick={() => handleDateClick(date)}
-      >
-        <div className="text">{date}</div>
-        {active && <FontAwesomeIcon icon={faCheck} className="active-icon" />}
-      </td>
-    );
-
-    if (
-      (index + adjustedFirstDay + 1) % 7 === 0 ||
-      index === daysData.length - 1
-    ) {
-      while (days.length < 7) {
-        days.push(<td key={`empty-${days.length + index + 1}`}></td>);
+  if (daysData.length > 0){
+    daysData.forEach(({ date, active }, index) => {
+      days.push(
+        <td
+          key={date}
+          className={active ? "table-cell active" : "table-cell"}
+          onClick={() => handleDateClick(date)}
+        >
+          <div className="text">{date}</div>
+          {active && <FontAwesomeIcon icon={faCheck} className="active-icon" />}
+        </td>
+      );
+  
+      if (
+        (index + adjustedFirstDay + 1) % 7 === 0 ||
+        index === daysData.length - 1
+      ) {
+        while (days.length < 7) {
+          days.push(<td key={`empty-${days.length + index + 1}`}></td>);
+        }
+        weeks.push(<tr key={`week-${weeks.length}`}>{days}</tr>);
+        days = [];
       }
-      weeks.push(<tr key={`week-${weeks.length}`}>{days}</tr>);
-      days = [];
-    }
-  });
+    });
+  }
 
   const monthOptions = Array.from({ length: 12 }, (_, i) => {
     const month = i + 1;

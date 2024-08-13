@@ -5,6 +5,7 @@ import { RecoilRoot } from "recoil";
 import HomePage from "../pages";
 import Home from "../pages/tools/home";
 import Work from "../pages/tools/work";
+import Index from "../pages/tools/index";
 
 const MyApp = () => {
   return (
@@ -14,7 +15,8 @@ const MyApp = () => {
           <ZMPRouter>
             <Routes>
               <Route path="/" element={<HomePage />}>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<Index />} />
+                <Route path="/home" element={<Home />} />
                 <Route path="/work" element={<Work />} />
               </Route>
             </Routes>

@@ -8,7 +8,7 @@ const botItems = [
   {
     icon: <FontAwesomeIcon icon={icon.faHouse} />,
     name: "Trang chủ",
-    link: "/",
+    link: "/home/",
   },
   {
     icon: <FontAwesomeIcon icon={icon.faBriefcase} />,

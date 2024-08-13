@@ -5,6 +5,7 @@
   "description": "zmp-blank-templates",
   "repository": "",
   "license": "UNLICENSED",
+  "proxy": "http://localhost:5000",
   "browserslist": [
     "Android >= 5",
     "IOS >= 9.3",

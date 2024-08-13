@@ -17,7 +17,6 @@ const Home = () => {
 
   useEffect(() => {
     let scrollTimeout;
-    console.log(isScrolling);
     const handleScroll = () => {
       isScrolling = true;
       clearTimeout(scrollTimeout);
