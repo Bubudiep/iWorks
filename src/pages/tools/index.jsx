@@ -2,14 +2,17 @@ import React, { useState, useEffect } from "react";
 import { getUserInfo, getSetting, authorize } from "zmp-sdk/apis";
 import { useRecoilState } from "recoil";
 import { useNavigate } from "react-router-dom";
-import { userState } from "../components/user-card";
 import iw_logo from "../img/alert.png";
+import { selector } from "recoil";
+import { getUserInfo } from "zmp-sdk/apis";
+import { useSelector } from "react-redux";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [userStateValue, setUserState] = useRecoilState(userState);
-  const [userInfo, setUserInfo] = useState(userStateValue.userInfo);
-
+  // const [userStateValue, setUserState] = useRecoilState(userState);
+  // const [userInfo, setUserInfo] = useState(userStateValue.userInfo);
+  const dispatch = useDispatch();
+  const { user: userState } = useSelector((state) => state.user);
   useEffect(() => {
     if (userInfo.avatar && userInfo.name) {
       navigate("/home/");
@@ -54,7 +57,19 @@ const Index = () => {
       });
     }
   };
-
+  useEffect(() => {
+    dispatch(
+      userSlice.actions.getUser(
+        selector({
+          key: "user",
+          get: () =>
+            getUserInfo({
+              avatarType: "normal",
+            }),
+        })
+      )
+    );
+  }, []);
   return (
     <div className="full-page">
       <div className="top-bar"></div>
