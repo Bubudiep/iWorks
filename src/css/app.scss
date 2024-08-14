@@ -25,6 +25,9 @@
         margin-top: 10px;
         gap: 5px;
         margin-top: 260px;
+        .message {
+          font-weight: bold;
+        }
         .extension-list {
           display: grid;
           grid-template-columns: repeat(3, 1fr); /* 3 cột đều nhau */
@@ -462,10 +465,17 @@
   display: flex;
   background-color: #fff;
   flex-direction: column;
+  &.normal {
+    background-color: #f1f1f1;
+  }
   .top-bar {
     display: flex;
-    height: 35px;
-    background-color: #5496fa;
+    height: 31px;
+    background-color: #0061c9;
+  }
+  .bot-bar {
+    display: flex;
+    height: 31px;
   }
   .body-main {
     padding: 20px;
@@ -479,27 +489,41 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 50px;
+      width: 150px;
       img {
-        width: 80%;
+        width: 100%;
       }
     }
     .message {
-      font-weight: 500;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      text-align: center;
+      color: #6b798b;
+      background-color: #fff;
+      box-shadow: 1px 2px 3px #0002;
+      padding: 20px 20px 20px 40px;
+      width: 90%;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      ul {
+        list-style-type: circle;
+        gap: 5px;
+        display: flex;
+        flex-direction: column;
+      }
     }
     .tools {
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 100%;
       button.accept {
         font-weight: 500;
+        width: 90%;
+        font-size: 0.9rem;
         background-color: #007bff;
         color: #fff;
-        padding: 10px 20px;
+        padding: 13px 20px;
         border-radius: 10px;
       }
     }
@@ -678,5 +702,135 @@
 
   100% {
     transform: translateX(100%);
+  }
+}
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: opacity 0.5s ease; /* Thêm transition để tạo hiệu ứng fade out */
+  .body-main {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 30px;
+    .logo {
+      width: 80px;
+      opacity: 0.5;
+      animation: fadeOpacity 1s infinite;
+    }
+    .message {
+      font-weight: bold;
+      color: #b3c2d3;
+    }
+  }
+}
+.loading-screen.fade-out {
+  opacity: 0; /* Khi thêm lớp fade-out, opacity sẽ giảm xuống 0 để tạo hiệu ứng mờ dần */
+}
+@keyframes fadeOpacity {
+  0% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0.4;
+  }
+}
+.jelly-triangle {
+  --uib-size: 2.8rem;
+  --uib-speed: 1.75s;
+  --uib-color: #579eff;
+  position: relative;
+  height: var(--uib-size);
+  width: var(--uib-size);
+  filter: url("#uib-jelly-triangle-ooze");
+}
+
+.jelly-triangle__dot,
+.jelly-triangle::before,
+.jelly-triangle::after {
+  content: "";
+  position: absolute;
+  width: 33%;
+  height: 33%;
+  background: var(--uib-color);
+  border-radius: 100%;
+  box-shadow: 0 0 20px rgba(0, 33, 90, 0.384);
+}
+
+.jelly-triangle__dot {
+  top: 6%;
+  left: 30%;
+  animation: grow7132 var(--uib-speed) ease infinite;
+}
+
+.jelly-triangle::before {
+  bottom: 6%;
+  right: 0;
+  animation: grow7132 var(--uib-speed) ease calc(var(--uib-speed) * -0.666)
+    infinite;
+}
+
+.jelly-triangle::after {
+  bottom: 6%;
+  left: 0;
+  animation: grow7132 var(--uib-speed) ease calc(var(--uib-speed) * -0.333)
+    infinite;
+}
+
+.jelly-triangle__traveler {
+  position: absolute;
+  top: 6%;
+  left: 30%;
+  width: 33%;
+  height: 33%;
+  background: var(--uib-color);
+  border-radius: 100%;
+  animation: triangulate6214 var(--uib-speed) ease infinite;
+}
+
+.jelly-maker {
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+.acenter {
+  align-items: center;
+  justify-content: center;
+}
+@keyframes triangulate6214 {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  33.333% {
+    transform: translate(120%, 175%);
+  }
+
+  66.666% {
+    transform: translate(-95%, 175%);
+  }
+}
+
+@keyframes grow7132 {
+  0%,
+  100% {
+    transform: scale(1.5);
+  }
+
+  20%,
+  70% {
+    transform: none;
   }
 }
