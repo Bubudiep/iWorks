@@ -218,6 +218,7 @@
           padding: 5px 10px; // Padding phía trên/dưới 5px, trái/phải 10px
           overflow-x: auto;
           scroll-snap-type: x mandatory;
+          gap: 10px;
           transition: all 0.3s;
           .MoneyCard {
             display: flex;
@@ -230,10 +231,6 @@
             overflow: hidden;
             gap: 3px;
             height: 92px;
-            &:last-child {
-              margin-left: 10px;
-              scroll-snap-align: center;
-            }
             .company {
               font-weight: 400;
               font-size: 0.8rem;
@@ -454,6 +451,10 @@
       }
     }
   }
+}
+.f1{
+  display: flex;
+  flex: 1;
 }
 .full-page {
   position: fixed;
@@ -798,7 +799,174 @@
   border-radius: 100%;
   animation: triangulate6214 var(--uib-speed) ease infinite;
 }
-
+.bg-page{
+  z-index: 1000;
+  background-color: #0003;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-in-out;
+  .show-card{
+    width: 80%;
+    display: flex;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    flex-direction: column;
+    gap: 10px;
+    transform: translateY(20px);
+    animation: slideUp 0.5s ease-in-out forwards;
+    overflow: hidden;
+    .logo{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 5px 10px;
+      img{
+        width: 60px;
+      }
+    }
+    .title{
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+      font-size: 1rem;
+      color: #0394f5;
+    }
+    .message{
+      white-space: wrap;
+      display: flex;
+      color: #000;
+      font-size: 0.85rem;
+      padding: 5px;
+      color: #999;
+    }
+    .step-buttons{
+      display: flex;
+    }
+    button.scanQR{
+      color: #0274f7;
+      border: none;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid #7ab4ff;
+      padding: 2px 10px 2px 2px;
+      img{
+        width: 30px;
+      }
+    }
+    button.prev{
+      color: #c5c5c5;
+      border: none;
+      padding: 7px 15px;
+      border-radius: 5px;
+    }
+    button.next{
+      background-color: #0394f5;
+      color: #fff;
+      border: none;
+      padding: 7px 15px;
+      border-radius: 5px;
+      margin-left: auto;
+    }
+    button.save{
+      background-color: #0394f5;
+      color: #fff;
+      border: none;
+      padding: 7px 15px;
+      border-radius: 5px;
+      margin-left: auto;
+    }
+    .form-group{
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      .h-name{
+        color: #2c2d369a;
+        font-weight: 500;
+      }
+      .h-input{
+        position: relative;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #999;
+        input{
+          border: 1px solid #dadada;
+          border-radius: 8px;
+          overflow: hidden !important;
+          padding: 5px;
+          width: -webkit-fill-available;
+          outline: none;
+          color: #000;
+          &.mini{
+            width: 80px;
+          }
+          &.mini2{
+            width: 40px;
+          }
+        }
+        .sub-input{
+          position: absolute;
+          top: 5px;
+          right: 5px;
+          color: #0005;
+        }
+      }
+    }
+  }
+}
+.summary{
+  table{
+    width: 100%;
+    border-spacing: 0px;
+    border-collapse: separate;
+    color: #999;
+    tr{
+      td{
+        padding: 5px 10px;
+        border: 1px solid #dfdfdf;
+        border-top: hidden;
+        &:last-child{
+          color: #1d1f24;
+          font-weight: 500;
+          border-left: hidden;
+          width: 50%;
+          text-align: right;
+        }
+      }
+      &:first-child{
+        td{
+          border-top: 1px solid #dfdfdf;
+          &:first-child{
+            border-top-left-radius: 10px;
+          }
+          &:last-child{
+            border-top-right-radius: 10px;
+          }
+        }
+      }
+      &:last-child{
+        td{
+          &:first-child{
+            border-bottom-left-radius: 10px;
+          }
+          &:last-child{
+            border-bottom-right-radius: 10px;
+          }
+        }
+      }
+    }
+  }
+}
 .jelly-maker {
   width: 0;
   height: 0;
@@ -832,5 +1000,112 @@
   20%,
   70% {
     transform: none;
+  }
+}
+.leap-frog {
+  --uib-size: 40px;
+  --uib-speed: 2s;
+  --uib-color: #0002;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  justify-content: space-between;
+  width: var(--uib-size);
+  height: var(--uib-size);
+ }
+ 
+ .leap-frog__dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+ }
+ 
+ .leap-frog__dot::before {
+  content: '';
+  display: block;
+  height: calc(var(--uib-size) * 0.22);
+  width: calc(var(--uib-size) * 0.22);
+  border-radius: 50%;
+  background-color: var(--uib-color);
+  will-change: transform;
+ }
+ 
+ .leap-frog__dot:nth-child(1) {
+  animation: leapFrog var(--uib-speed) ease infinite;
+ }
+ 
+ .leap-frog__dot:nth-child(2) {
+  transform: translateX(calc(var(--uib-size) * 0.4));
+  animation: leapFrog var(--uib-speed) ease calc(var(--uib-speed) / -1.5)
+     infinite;
+ }
+ 
+ .leap-frog__dot:nth-child(3) {
+  transform: translateX(calc(var(--uib-size) * 0.8)) rotate(0deg);
+  animation: leapFrog var(--uib-speed) ease calc(var(--uib-speed) / -3)
+     infinite;
+ }
+ 
+ @keyframes leapFrog {
+  0% {
+   transform: translateX(0) rotate(0deg);
+  }
+ 
+  33.333% {
+   transform: translateX(0) rotate(180deg);
+  }
+ 
+  66.666% {
+   transform: translateX(calc(var(--uib-size) * -0.4)) rotate(180deg);
+  }
+ 
+  99.999% {
+   transform: translateX(calc(var(--uib-size) * -0.8)) rotate(180deg);
+  }
+ 
+  100% {
+   transform: translateX(0) rotate(0deg);
+  }
+ }
+ @keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+/* Áp dụng animation cho .step-box */
+.step-box {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  animation: slideInFromLeft 0.3s ease-out;
+}
+@keyframes slideInFromLeft {
+  0% {
+    transform: translateX(5px);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
   }
 }

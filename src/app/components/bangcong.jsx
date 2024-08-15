@@ -5,8 +5,9 @@ import {
   faAngleLeft,
   faAngleRight,
 } from "@fortawesome/free-solid-svg-icons";
+import ApiClient from "./api";
 
-const Bangcong = () => {
+const Bangcong = ({userInfo}) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const daysInMonth = new Date(
     currentDate.getFullYear(),

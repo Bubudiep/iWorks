@@ -3,6 +3,7 @@ import iw_logo from "../img/alert.png";
 import { getUserInfo, getSetting, authorize } from "zmp-sdk/apis";
 import { useNavigate } from "react-router-dom";
 import logo from "../img/iwork_3.png";
+import ApiClient from "../components/api";
 
 const Index = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -10,6 +11,7 @@ const Index = () => {
   const [fadeOut, setFadeOut] = useState(false);
   const navigate = useNavigate();
 
+  const fetch = ApiClient();
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
@@ -19,32 +21,42 @@ const Index = () => {
         }
       } catch (error) {
         console.error("Failed to fetch user info:", error);
-      } finally {
-        // Thời gian tối thiểu loading là 1 giây trước khi bắt đầu fade out
-        setTimeout(() => {
-          setFadeOut(true); // Kích hoạt hiệu ứng fade out
-          setTimeout(() => {
-            setLoading(false); // Tắt màn hình loading sau khi fade out hoàn tất
-          }, 700); // Thời gian phù hợp với thời gian transition trong CSS
-        }, 1300); // Đảm bảo loading hiển thị ít nhất 1 giây trước khi fade out
       }
     };
     fetchUserInfo();
   }, []);
 
   useEffect(() => {
-    if (userInfo?.name) {
+    if (userInfo&&userInfo.name) {
+      setTimeout(async () => {
+        const loginData = await fetch.post("/login", {
+          zalo_id: userInfo.id,
+          info: userInfo,
+        });
+        if (loginData) {
+          userInfo.login = loginData;
+          setTimeout(() => {
+            navigate("/home/", { state: { userInfo } }); // Truyền userInfo vào state khi điều hướng
+            setTimeout(() => {
+              setLoading(false); // Tắt màn hình loading sau khi fade out hoàn tất
+            }, 500); // Thời gian phù hợp với thời gian transition trong CSS
+          }, 1000); // Đảm bảo loading hiển thị ít nhất 1 giây trước khi fade out
+        } else {
+          console.error("Failed to login:", loginData);
+        }
+      }, 500); // Đảm bảo loading hiển thị ít nhất 1 giây trước khi fade out
+    } else if(userInfo){
+      // Thời gian tối thiểu loading là 1 giây trước khi bắt đầu fade out
       setTimeout(() => {
-        navigate("/home/", { state: { userInfo } }); // Truyền userInfo vào state khi điều hướng
+        setFadeOut(true); // Kích hoạt hiệu ứng fade out
         setTimeout(() => {
           setLoading(false); // Tắt màn hình loading sau khi fade out hoàn tất
-        }, 700); // Thời gian phù hợp với thời gian transition trong CSS
-      }, 1300); // Đảm bảo loading hiển thị ít nhất 1 giây trước khi fade out
+        }, 50); // Thời gian phù hợp với thời gian transition trong CSS
+      }, 500); // Đảm bảo loading hiển thị ít nhất 1 giây trước khi fade out
     }
   }, [userInfo, navigate]);
 
   const handleUserNameClick = async () => {
-    console.log("handleUserNameClicking", userInfo);
     if (userInfo && userInfo.id) {
       getSetting({
         success: (data) => {

@@ -111,7 +111,7 @@ const HomePage = () => {
             </div>
           </div>
           <div className="fast-option">
-            <MoneyCard />
+            <MoneyCard userInfo={userInfo} />
           </div>
         </div>
         <div className="body-main">
@@ -136,7 +136,7 @@ const HomePage = () => {
           </div>
           <div className="h3 top10">Bảng công</div>
           <div className="h-items pd0x10">
-            <BangCong />
+            <BangCong userInfo={userInfo} />
           </div>
           <div className="h3 top10">Tiện ích</div>
           <div className="h-items pd0x10">

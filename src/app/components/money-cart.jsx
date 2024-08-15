@@ -1,61 +1,390 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as icon from "@fortawesome/free-solid-svg-icons";
+import ApiClient from "./api";
+import case_icon from "../img/case.png";
+import adjustment from "../img/adjustment.png";
+import verified from "../img/verified.png";
+import ic_scan from "../img/scan_6064668.png";
+import email_4852081 from "../img/email_4852081.png";
 
-const MoneyCard = () => {
-  const [isViewed, setIsViewed] = useState(false);
-  const [isViewed2, setIsViewed2] = useState(false);
+const MoneyCard = ({ userInfo }) => {
+  const [currentStep, setCurrentStep] = useState(0); // Quản lý các bước thiết lập
+  const [workSheet, setWorkSheet] = useState([]); // Sử dụng mảng để lưu các item từ API
+  const [isLoading, setIsLoading] = useState(true);
+  const [isViewed, setIsViewed] = useState(false); // Kiểm soát trạng thái hiển thị số tiền
 
+  const [totalData, setTotalData] = useState({}); // Biến tổng hợp dữ liệu từ các bước
+
+  const companyName = useRef(null);
+  const positionName = useRef(null);
+  const workDays = useRef(0);
+  const salarys = useRef(0);
+  const phucap1 = useRef(0);
+  const phucap2 = useRef(0);
+  const workFinish = useRef(1);
+  const startWorkdate = useRef(null);
+  const chuyencan = useRef(300000);
+  const ngaychuyencan = useRef(26);
+
+  useEffect(() => {
+    const getWorksheet = async () => {
+      try {
+        const fetchData = ApiClient();
+        const response = await fetchData.gets(
+          "/worksheet",
+          userInfo.login.token
+        );
+        if (response && response.items.length === 0) {
+          setWorkSheet([]);
+        } else {
+          setWorkSheet(response.items);
+        }
+      } catch (error) {
+        setWorkSheet(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getWorksheet();
+  }, [userInfo]);
   const handleViewToggle = () => {
-    setIsViewed(!isViewed);
-  };
-  const handleViewToggle2 = () => {
-    setIsViewed2(!isViewed2);
+    setIsViewed((prev) => !prev);
   };
 
-  const amount = 99000000000;
-  const amount2 = 112000000000;
   const formatCurrency = (amount) => {
-    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(amount);
+  };
+
+  const handleNextStep = () => {
+    if (currentStep==1){
+      if (companyName.current?.value==null||companyName.current?.value==""){
+        alert("Bạn chưa nhập tên công ty!");
+        return;
+      }
+      if (positionName.current?.value==null||positionName.current?.value==""){
+        positionName.current.value="Không biết!";
+      }
+    } else if (currentStep==2){
+      if (workFinish.current?.value==null||workFinish.current?.value<=0){
+        workFinish.current.value=1;
+      }
+      if (workDays.current?.value==null||workDays.current?.value<=0){
+        workDays.current.value=0 
+      }
+      if (salarys.current?.value==null||salarys.current?.value<=0){
+        salarys.current.value=0;
+      }
+      if (chuyencan.current?.value==null||chuyencan.current?.value<=0){
+        chuyencan.current.value=0;
+      }
+    }
+    setTotalData({
+      companyName: companyName.current?.value
+        ? companyName.current.value
+        : totalData.companyName,
+      positionName: positionName.current?.value
+        ? positionName.current.value
+        : totalData.positionName,
+      startWorkdate: startWorkdate.current?.value
+        ? startWorkdate.current.value
+        : totalData.startWorkdate,
+      workFinish: workFinish.current?.value
+        ? workFinish.current.value
+        : totalData.workFinish,
+      workDays: workDays.current?.value
+        ? workDays.current.value
+        : totalData.workDays,
+      salarys: salarys.current?.value
+        ? salarys.current.value
+        : totalData.salarys,
+      chuyencan: chuyencan.current?.value
+        ? chuyencan.current.value
+        : totalData.chuyencan,
+      ngaychuyencan: ngaychuyencan.current?.value
+        ? ngaychuyencan.current.value
+        : totalData.ngaychuyencan,
+      phucap1: phucap1.current?.value
+        ? phucap1.current.value
+        : totalData.phucap1,
+      phucap2: phucap2.current?.value
+        ? phucap2.current.value
+        : totalData.phucap2,
+    });
+    if (currentStep < 3) {
+      setCurrentStep((prevStep) => prevStep + 1);
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep((prevStep) => prevStep - 1);
+    }
+  };
+
+  const handleSave = () => {
+    console.log("Dữ liệu được lưu lại:", totalData);
+    setCurrentStep(99);
   };
 
   return (
     <div className="listCard">
-      <div className="MoneyCard">
-        <div className="company">Tên công ty</div>
-        <div className="money">
-          <div className="amount">
-            {isViewed ? formatCurrency(amount) : "••• ••• •••"}
-          </div>
-          <div className="view" onClick={handleViewToggle}>
-            <FontAwesomeIcon icon={isViewed ? icon.faEye : icon.faEyeSlash} />
-          </div>
-        </div>
-        <Link to="/caidat_Luong" className="caidat">
-          <div className="txt">Chi tiết bảng lương</div>
-          <div className="icon">
-            <FontAwesomeIcon icon={icon.faAngleRight} />
-          </div>
-        </Link>
-      </div>
-      <div className="MoneyCard">
-        <div className="company">Lương tháng dự kiến</div>
-        <div className="money">
-          <div className="amount">
-            {isViewed2 ? formatCurrency(amount2) : "••• ••• •••"}
-          </div>
-          <div className="view" onClick={handleViewToggle2}>
-            <FontAwesomeIcon icon={isViewed2 ? icon.faEye : icon.faEyeSlash} />
+      {isLoading ? (
+        <div className="MoneyCard">
+          <div className="f1 acenter">
+            <div className="leap-frog">
+              <div className="leap-frog__dot"></div>
+              <div className="leap-frog__dot"></div>
+              <div className="leap-frog__dot"></div>
+            </div>
           </div>
         </div>
-        <Link to="/caidat_Luong" className="caidat">
-          <div className="txt">Tùy chỉnh dự kiến</div>
-          <div className="icon">
-            <FontAwesomeIcon icon={icon.faAngleRight} />
+      ) : workSheet.length === 0 ? (
+        <div className="bg-page">
+          <div className="show-card">
+            {currentStep === 0 && (
+              <div className="step-box">
+                <div className="logo">
+                  <img src={adjustment} alt="case icon" />
+                </div>
+                <div className="title">Chào thành viên mới</div>
+                <div className="message">
+                  <ul>
+                    <li>Bắt đầu thêm công ty và bảng lương để quản lý nào!</li>
+                    <li>
+                      Chọn Quét mã để nhập cài đặt bảng lương từ người khác cho
+                      bạn!
+                    </li>
+                  </ul>
+                </div>
+                <div className="step-buttons">
+                  <button className="scanQR" onClick={handlePrevStep}>
+                    <img src={ic_scan} />
+                    Quét mã
+                  </button>
+                  <button className="next" onClick={handleNextStep}>
+                    Tự thiết lập
+                  </button>
+                </div>
+              </div>
+            )}
+            {currentStep === 1 && (
+              <div className="step-box">
+                <div className="logo">
+                  <img src={case_icon} alt="case icon" />
+                </div>
+                <div className="title">Công ty và chức vụ của bạn</div>
+                <div className="form-group">
+                  <div className="h-name">Tên công ty</div>
+                  <div className="h-input">
+                    <input
+                      ref={companyName}
+                      placeholder="Tên công ty của bạn"
+                    />
+                  </div>
+                  <div className="h-name">Vị trí</div>
+                  <div className="h-input">
+                    <input ref={positionName} placeholder="Chức vụ của bạn" />
+                  </div>
+                  <div className="h-name">Ngày bắt đầu vào làm</div>
+                  <div className="h-input">
+                    <input ref={startWorkdate} type="date" />
+                  </div>
+                </div>
+                <div className="step-buttons">
+                  <button className="prev" onClick={handlePrevStep}>
+                    Quay lại
+                  </button>
+                  <button className="next" onClick={handleNextStep}>
+                    Tiếp theo
+                  </button>
+                </div>
+              </div>
+            )}
+            {currentStep === 2 && (
+              <div className="step-box">
+                <div className="logo">
+                  <img src={email_4852081} alt="case icon" />
+                </div>
+                <div className="title">Bảng lương và ngày thanh toán</div>
+                <div className="form-group">
+                  <div className="h-name">Ngày chốt công</div>
+                  <div className="h-input">
+                    Ngày
+                    <input
+                      min={1}
+                      max={31}
+                      ref={workFinish}
+                      type="number"
+                      placeholder="ngày chốt công"
+                      defaultValue={10}
+                    />
+                    <div className="sub-input">hàng tháng</div>
+                  </div>
+                  <div className="h-name">Ngày công tính lương</div>
+                  <div className="h-input">
+                    <input
+                      ref={workDays}
+                      type="number"
+                      placeholder="số ngày công"
+                      defaultValue={26}
+                    />
+                    <div className="sub-input">ngày công</div>
+                  </div>
+                  <div className="h-name">Lương cơ bản</div>
+                  <div className="h-input">
+                    <input
+                      ref={salarys}
+                      type="number"
+                      placeholder="lương cơ bản"
+                      defaultValue={4300000}
+                    />
+                    <div className="sub-input">VND</div>
+                  </div>
+                  <div className="h-name">Chuyên cần</div>
+                  <div className="h-input">
+                    <input
+                      ref={chuyencan}
+                      className="mini"
+                      type="number"
+                      placeholder="lương chuyên cần"
+                      defaultValue={300000}
+                    />
+                    khi làm đủ
+                    <input
+                      ref={ngaychuyencan}
+                      className="mini2"
+                      type="number"
+                      placeholder="số ngày"
+                      defaultValue={26}
+                    />
+                    ngày công
+                  </div>
+                  <div className="h-name">
+                    Tổng phụ cấp (tính theo ngày công)
+                  </div>
+                  <div className="h-input">
+                    <input
+                      ref={phucap1}
+                      type="number"
+                      placeholder="phụ cấp cố định"
+                      defaultValue={0}
+                    />
+                    <div className="sub-input">VND</div>
+                  </div>
+                  <div className="h-name">Tổng phụ cấp (cố định)</div>
+                  <div className="h-input">
+                    <input
+                      ref={phucap2}
+                      type="number"
+                      placeholder="phụ cấp cố định"
+                      defaultValue={0}
+                    />
+                    <div className="sub-input">VND</div>
+                  </div>
+                </div>
+                <div className="step-buttons">
+                  <button className="prev" onClick={handlePrevStep}>
+                    Quay lại
+                  </button>
+                  <button className="next" onClick={handleNextStep}>
+                    Tiếp theo
+                  </button>
+                </div>
+              </div>
+            )}
+            {currentStep === 3 && (
+              <div className="step-box">
+                <div className="logo">
+                  <img src={verified} alt="case icon" />
+                </div>
+                <div className="title">Kiểm tra lại thông tin</div>
+                <div className="summary">
+                  <table>
+                    <tbody>
+                      <tr>
+                        <td>Tên công ty</td>
+                        <td>{totalData.companyName}</td>
+                      </tr>
+                      <tr>
+                        <td>Vị trí</td>
+                        <td>{totalData.positionName}</td>
+                      </tr>
+                      <tr>
+                        <td>Lương cơ bản</td>
+                        <td>{totalData.salarys} VND</td>
+                      </tr>
+                      <tr>
+                        <td>Chuyên cần</td>
+                        <td>{totalData.chuyencan} VND</td>
+                      </tr>
+                      <tr>
+                        <td>Phụ cấp theo ngày</td>
+                        <td>{totalData.phucap1} VND</td>
+                      </tr>
+                      <tr>
+                        <td>Phụ cấp cố định</td>
+                        <td>{totalData.phucap2} VND</td>
+                      </tr>
+                      <tr>
+                        <td>Ngày chốt công</td>
+                        <td>Ngày {totalData.workFinish} hàng tháng</td>
+                      </tr>
+                      <tr>
+                        <td>Tổng lương</td>
+                        <td>
+                          {parseInt(totalData.salarys) +
+                            parseInt(totalData.chuyencan) +
+                            parseInt(totalData.phucap1) +
+                            parseInt(totalData.phucap2)} VND
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Ngày công</td>
+                        <td>{totalData.workDays} ngày công/ tháng</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="step-buttons">
+                  <button className="prev" onClick={handlePrevStep}>
+                    Quay lại
+                  </button>
+                  <button className="save" onClick={handleSave}>
+                    Hoàn thành
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        </Link>
-      </div>
+        </div>
+      ) : (
+        workSheet.map((item, index) => (
+          <div key={index} className="MoneyCard">
+            <div className="company">{item.companyName}</div>
+            <div className="money">
+              <div className="amount">
+                {isViewed ? formatCurrency(item.amount) : "••• ••• •••"}
+              </div>
+              <div className="view" onClick={handleViewToggle}>
+                <FontAwesomeIcon
+                  icon={isViewed ? icon.faEye : icon.faEyeSlash}
+                />
+              </div>
+            </div>
+            <Link to={`/caidat_Luong/${item.id}`} className="caidat">
+              <div className="txt">Chi tiết bảng lương</div>
+              <div className="icon">
+                <FontAwesomeIcon icon={icon.faAngleRight} />
+              </div>
+            </Link>
+          </div>
+        ))
+      )}
     </div>
   );
 };
