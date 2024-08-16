@@ -8,6 +8,21 @@ import adjustment from "../img/adjustment.png";
 import verified from "../img/verified.png";
 import ic_scan from "../img/scan_6064668.png";
 import email_4852081 from "../img/email_4852081.png";
+import Popup from "./popup"; // Import component popup
+
+function pad(num, size) {
+  num = num.toString();
+  while (num.length < size) num = "0" + num;
+  return num;
+}
+function toDate() {
+  const today = new Date();
+  const month = today.getMonth() + 1;
+  const year = today.getFullYear();
+  const date = today.getDate();
+  console.log(`${year}-${month}-${date}`);
+  return `${year}-${pad(month, 2)}-${pad(date, 2)}`;
+}
 
 const MoneyCard = ({ userInfo }) => {
   const [currentStep, setCurrentStep] = useState(0); // Quản lý các bước thiết lập
@@ -27,11 +42,15 @@ const MoneyCard = ({ userInfo }) => {
   const startWorkdate = useRef(null);
   const chuyencan = useRef(300000);
   const ngaychuyencan = useRef(26);
+  
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
+  const [popupTitle, setpopupTitle] = useState('Lỗi'); // Popup message
+  const [popupMessage, setPopupMessage] = useState(''); // Popup message
 
+  const fetchData = ApiClient();
   useEffect(() => {
     const getWorksheet = async () => {
       try {
-        const fetchData = ApiClient();
         const response = await fetchData.gets(
           "/worksheet",
           userInfo.login.token
@@ -61,26 +80,46 @@ const MoneyCard = ({ userInfo }) => {
   };
 
   const handleNextStep = () => {
-    if (currentStep==1){
-      if (companyName.current?.value==null||companyName.current?.value==""){
-        alert("Bạn chưa nhập tên công ty!");
+    if (currentStep == 1) {
+      if (
+        companyName.current?.value == null ||
+        companyName.current?.value == ""
+      ) {
+        setpopupTitle("Lỗi");
+        setPopupMessage("Bạn chưa nhập tên công ty!");
+        setIsPopupOpen(true);
         return;
       }
-      if (positionName.current?.value==null||positionName.current?.value==""){
-        positionName.current.value="Không biết!";
+      if (
+        positionName.current?.value == null ||
+        positionName.current?.value == ""
+      ) {
+        positionName.current.value = "Không biết!";
       }
-    } else if (currentStep==2){
-      if (workFinish.current?.value==null||workFinish.current?.value<=0){
-        workFinish.current.value=1;
+    } else if (currentStep == 2) {
+      if (workDays.current?.value == null || workDays.current?.value <= 0) {
+        setpopupTitle("Lỗi");
+        setPopupMessage("Bạn chưa nhập số ngày làm việc!");
+        setIsPopupOpen(true);
+        return;
       }
-      if (workDays.current?.value==null||workDays.current?.value<=0){
-        workDays.current.value=0 
+      if (salarys.current?.value == null || salarys.current?.value <= 0) {
+        setpopupTitle("Lỗi");
+        setPopupMessage("Bạn chưa nhập mức lương!");
+        setIsPopupOpen(true);
+        return;
       }
-      if (salarys.current?.value==null||salarys.current?.value<=0){
-        salarys.current.value=0;
+      if (phucap1.current?.value == null || phucap1.current?.value < 0) {
+        setpopupTitle("Lỗi");
+        setPopupMessage("Bạn chưa nhập phụ cấp cố định!");
+        setIsPopupOpen(true);
+        return;
       }
-      if (chuyencan.current?.value==null||chuyencan.current?.value<=0){
-        chuyencan.current.value=0;
+      if (phucap2.current?.value == null || phucap2.current?.value < 0) {
+        setpopupTitle("Lỗi");
+        setPopupMessage("Bạn chưa nhập phụ cấp tính theo ngày!");
+        setIsPopupOpen(true);
+        return;
       }
     }
     setTotalData({
@@ -126,13 +165,23 @@ const MoneyCard = ({ userInfo }) => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     console.log("Dữ liệu được lưu lại:", totalData);
-    setCurrentStep(99);
+    const createWork= await fetchData.post(
+      "/createworksheet",
+      totalData,
+      userInfo.login.token
+    );
+    // setCurrentStep(0);
   };
 
+  const closePopup = () => {
+    setIsPopupOpen(false);
+  };
+  
   return (
     <div className="listCard">
+      <Popup title={popupTitle} message={popupMessage} isOpen={isPopupOpen} onClose={closePopup} />
       {isLoading ? (
         <div className="MoneyCard">
           <div className="f1 acenter">
@@ -154,10 +203,15 @@ const MoneyCard = ({ userInfo }) => {
                 <div className="title">Chào thành viên mới</div>
                 <div className="message">
                   <ul>
-                    <li>Bắt đầu thêm công ty và bảng lương để quản lý nào!</li>
                     <li>
-                      Chọn Quét mã để nhập cài đặt bảng lương từ người khác cho
-                      bạn!
+                      Hiện tại bạn chưa làm việc tại công ty và chưa có bảng
+                      lương nào, bạn cần thêm công ty và bảng lương để quản lý!
+                    </li>
+                    <li>
+                      Chọn <l>Quét mã</l> để nhập cài đặt bảng lương từ người khác!
+                    </li>
+                    <li>
+                      Hoặc <l>Tự thiết lập</l> để bắt đầu các bước cài đặt!
                     </li>
                   </ul>
                 </div>
@@ -184,15 +238,28 @@ const MoneyCard = ({ userInfo }) => {
                     <input
                       ref={companyName}
                       placeholder="Tên công ty của bạn"
+                      defaultValue={totalData.companyName}
                     />
                   </div>
                   <div className="h-name">Vị trí</div>
                   <div className="h-input">
-                    <input ref={positionName} placeholder="Chức vụ của bạn" />
+                    <input
+                      ref={positionName}
+                      placeholder="Chức vụ của bạn"
+                      defaultValue={totalData.positionName}
+                    />
                   </div>
                   <div className="h-name">Ngày bắt đầu vào làm</div>
                   <div className="h-input">
-                    <input ref={startWorkdate} type="date" />
+                    <input
+                      ref={startWorkdate}
+                      type="date"
+                      defaultValue={
+                        totalData.startWorkdate
+                          ? totalData.startWorkdate
+                          : toDate()
+                      }
+                    />
                   </div>
                 </div>
                 <div className="step-buttons">
@@ -316,23 +383,23 @@ const MoneyCard = ({ userInfo }) => {
                       </tr>
                       <tr>
                         <td>Lương cơ bản</td>
-                        <td>{totalData.salarys} VND</td>
+                        <td>{totalData.salarys}</td>
                       </tr>
                       <tr>
                         <td>Chuyên cần</td>
-                        <td>{totalData.chuyencan} VND</td>
+                        <td>{totalData.chuyencan}</td>
                       </tr>
                       <tr>
                         <td>Phụ cấp theo ngày</td>
-                        <td>{totalData.phucap1} VND</td>
+                        <td>{totalData.phucap1}</td>
                       </tr>
                       <tr>
                         <td>Phụ cấp cố định</td>
-                        <td>{totalData.phucap2} VND</td>
+                        <td>{totalData.phucap2}</td>
                       </tr>
                       <tr>
                         <td>Ngày chốt công</td>
-                        <td>Ngày {totalData.workFinish} hàng tháng</td>
+                        <td>{totalData.workFinish}</td>
                       </tr>
                       <tr>
                         <td>Tổng lương</td>
@@ -340,12 +407,12 @@ const MoneyCard = ({ userInfo }) => {
                           {parseInt(totalData.salarys) +
                             parseInt(totalData.chuyencan) +
                             parseInt(totalData.phucap1) +
-                            parseInt(totalData.phucap2)} VND
+                            parseInt(totalData.phucap2)}
                         </td>
                       </tr>
                       <tr>
                         <td>Ngày công</td>
-                        <td>{totalData.workDays} ngày công/ tháng</td>
+                        <td>{totalData.workDays}</td>
                       </tr>
                     </tbody>
                   </table>

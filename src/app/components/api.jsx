@@ -1,6 +1,6 @@
 // src/components/ApiClient.js
-const ApiClient = (host = "ipays.vn", port = 5000) => {
-  const baseUrl = `https://${host}:${port}`;
+const ApiClient = (host = "localhost:5000", port = 5000) => {
+  const baseUrl = `http://${host}/api`;
 
   return {
     get: async (endpoint) => {
@@ -28,11 +28,12 @@ const ApiClient = (host = "ipays.vn", port = 5000) => {
       }
       return response.json();
     },
-    post: async (endpoint, body) => {
+    post: async (endpoint, body, token) => {
       const response = await fetch(`${baseUrl}${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
         },
         referrerPolicy: "no-referrer", // Chỉ định chính sách không gửi trường Referer
         body: JSON.stringify(body),
