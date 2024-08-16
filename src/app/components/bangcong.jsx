@@ -7,7 +7,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import ApiClient from "./api";
 
-const Bangcong = ({userInfo}) => {
+const Bangcong = ({ userInfo }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const daysInMonth = new Date(
     currentDate.getFullYear(),
@@ -24,32 +24,18 @@ const Bangcong = ({userInfo}) => {
   const [detailInfo, setDetailInfo] = useState(null);
   const popupRef = useRef(null);
 
-  // Hàm lấy giá trị cookie
-  const getCookie = (name) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(";").shift();
-  };
+  const fetchs = ApiClient();
 
   useEffect(() => {
     const fetchData = async () => {
-      // Lấy token từ cookie
-      const token = getCookie("iwtoken");
       const data = [];
       try {
-        const response = await fetch(`http://localhost:5000/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        data = await response.json();
+        const response = await fetchs.gets("/workrecord", userInfo.login.token);
+        data = response.items;
       } catch (error) {
-        console.error("Error fetching data", error);
+      } finally {
       }
+
       const updatedDaysData = allDaysData.map((day) => ({
         ...day,
         active: data.some(

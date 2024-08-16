@@ -42,10 +42,10 @@ const MoneyCard = ({ userInfo }) => {
   const startWorkdate = useRef(null);
   const chuyencan = useRef(300000);
   const ngaychuyencan = useRef(26);
-  
+
   const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
-  const [popupTitle, setpopupTitle] = useState('Lỗi'); // Popup message
-  const [popupMessage, setPopupMessage] = useState(''); // Popup message
+  const [popupTitle, setpopupTitle] = useState("Lỗi"); // Popup message
+  const [popupMessage, setPopupMessage] = useState(""); // Popup message
 
   const fetchData = ApiClient();
   useEffect(() => {
@@ -167,7 +167,7 @@ const MoneyCard = ({ userInfo }) => {
 
   const handleSave = async () => {
     console.log("Dữ liệu được lưu lại:", totalData);
-    const createWork= await fetchData.post(
+    const createWork = await fetchData.post(
       "/createworksheet",
       totalData,
       userInfo.login.token
@@ -178,10 +178,15 @@ const MoneyCard = ({ userInfo }) => {
   const closePopup = () => {
     setIsPopupOpen(false);
   };
-  
+
   return (
     <div className="listCard">
-      <Popup title={popupTitle} message={popupMessage} isOpen={isPopupOpen} onClose={closePopup} />
+      <Popup
+        title={popupTitle}
+        message={popupMessage}
+        isOpen={isPopupOpen}
+        onClose={closePopup}
+      />
       {isLoading ? (
         <div className="MoneyCard">
           <div className="f1 acenter">
@@ -208,7 +213,8 @@ const MoneyCard = ({ userInfo }) => {
                       lương nào, bạn cần thêm công ty và bảng lương để quản lý!
                     </li>
                     <li>
-                      Chọn <l>Quét mã</l> để nhập cài đặt bảng lương từ người khác!
+                      Chọn <l>Quét mã</l> để nhập cài đặt bảng lương từ người
+                      khác!
                     </li>
                     <li>
                       Hoặc <l>Tự thiết lập</l> để bắt đầu các bước cài đặt!

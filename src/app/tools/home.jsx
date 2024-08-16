@@ -5,17 +5,18 @@ import BangCong from "../components/bangcong";
 import UserCard from "../components/user-card";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as icon from "@fortawesome/free-solid-svg-icons";
-
+import { useUser } from "../context/userContext";
 import Background from "../img/iw_bg_2.png";
 import Iwork_logo from "../img/logo_txt.png";
+import { getUserInfo, getSetting, authorize } from "zmp-sdk/apis";
 
 var sectionStyle = {
   backgroundImage: `url(${Background})`,
 };
 const HomePage = () => {
   const location = useLocation();
-  const { userInfo } = location.state || {}; // Nhận userInfo từ state
-  if (userInfo.id) {
+  const { userInfo, setUserInfo } = useUser();
+  if (userInfo) {
     console.log(userInfo);
   }
   let startY = 0;
