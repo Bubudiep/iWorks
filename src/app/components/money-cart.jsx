@@ -9,6 +9,7 @@ import verified from "../img/verified.png";
 import ic_scan from "../img/scan_6064668.png";
 import email_4852081 from "../img/email_4852081.png";
 import Popup from "./popup"; // Import component popup
+import { useUser } from "../context/userContext";
 
 function pad(num, size) {
   num = num.toString();
@@ -24,7 +25,8 @@ function toDate() {
   return `${year}-${pad(month, 2)}-${pad(date, 2)}`;
 }
 
-const MoneyCard = ({ userInfo }) => {
+const MoneyCard = () => {
+  const { userInfo, setUserInfo } = useUser();
   const [currentStep, setCurrentStep] = useState(0); // Quản lý các bước thiết lập
   const [workSheet, setWorkSheet] = useState([]); // Sử dụng mảng để lưu các item từ API
   const [isLoading, setIsLoading] = useState(true);
@@ -43,7 +45,9 @@ const MoneyCard = ({ userInfo }) => {
   const chuyencan = useRef(300000);
   const ngaychuyencan = useRef(26);
 
-  const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
+  const [isFadeout, setIsFadeout] = useState(false); // Popup statepopup
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup statepopup
+  const [popupType, setpopupType] = useState("error"); // Popup message
   const [popupTitle, setpopupTitle] = useState("Lỗi"); // Popup message
   const [popupMessage, setPopupMessage] = useState(""); // Popup message
 
@@ -52,16 +56,17 @@ const MoneyCard = ({ userInfo }) => {
     const getWorksheet = async () => {
       try {
         const response = await fetchData.gets(
-          "/worksheet",
+          "/worksheet_list_details",
           userInfo.login.token
         );
+        console.log(response);
         if (response && response.items.length === 0) {
           setWorkSheet([]);
         } else {
           setWorkSheet(response.items);
         }
       } catch (error) {
-        setWorkSheet(false);
+        setWorkSheet([]);
       } finally {
         setIsLoading(false);
       }
@@ -79,43 +84,45 @@ const MoneyCard = ({ userInfo }) => {
     }).format(amount);
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = (setstep=null) => {
     if (currentStep == 1) {
       if (
         companyName.current?.value == null ||
         companyName.current?.value == ""
       ) {
+        setpopupType("error");
         setpopupTitle("Lỗi");
         setPopupMessage("Bạn chưa nhập tên công ty!");
         setIsPopupOpen(true);
         return;
       }
       if (
-        positionName.current?.value == null ||
-        positionName.current?.value == ""
+        salarys.current?.value == null ||
+        salarys.current?.value == ""
       ) {
-        positionName.current.value = "Không biết!";
+        setpopupType("error");
+        setpopupTitle("Lỗi");
+        setPopupMessage("Bạn chưa nhập tên công ty!");
+        setIsPopupOpen(true);
+        return;
       }
     } else if (currentStep == 2) {
       if (workDays.current?.value == null || workDays.current?.value <= 0) {
+        setpopupType("error");
         setpopupTitle("Lỗi");
         setPopupMessage("Bạn chưa nhập số ngày làm việc!");
         setIsPopupOpen(true);
         return;
       }
-      if (salarys.current?.value == null || salarys.current?.value <= 0) {
-        setpopupTitle("Lỗi");
-        setPopupMessage("Bạn chưa nhập mức lương!");
-        setIsPopupOpen(true);
-        return;
-      }
       if (phucap1.current?.value == null || phucap1.current?.value < 0) {
+        setpopupType("error");
         setpopupTitle("Lỗi");
         setPopupMessage("Bạn chưa nhập phụ cấp cố định!");
         setIsPopupOpen(true);
         return;
       }
       if (phucap2.current?.value == null || phucap2.current?.value < 0) {
+        setpopupType("error");
         setpopupTitle("Lỗi");
         setPopupMessage("Bạn chưa nhập phụ cấp tính theo ngày!");
         setIsPopupOpen(true);
@@ -155,10 +162,17 @@ const MoneyCard = ({ userInfo }) => {
         : totalData.phucap2,
     });
     if (currentStep < 3) {
-      setCurrentStep((prevStep) => prevStep + 1);
+      if (setstep>0){
+        setCurrentStep(3);
+      } else {
+        setCurrentStep((prevStep) => prevStep + 1);
+      }
     }
   };
-
+  
+  const handlePreview = (step) => {
+    handleNextStep(step)
+  };
   const handlePrevStep = () => {
     if (currentStep > 0) {
       setCurrentStep((prevStep) => prevStep - 1);
@@ -167,11 +181,36 @@ const MoneyCard = ({ userInfo }) => {
 
   const handleSave = async () => {
     console.log("Dữ liệu được lưu lại:", totalData);
-    const createWork = await fetchData.post(
-      "/createworksheet",
-      totalData,
-      userInfo.login.token
-    );
+    try{
+      const createWork = await fetchData.post(
+        "/createworksheet",
+        totalData,
+        userInfo.login.token
+      );
+      setUserInfo(prevUser => ({
+        ...prevUser,
+        workSheet: createWork
+      }));
+      setpopupType("ok");
+      setpopupTitle("Thành công");
+      setPopupMessage("Bảng lương đã được thêm!");
+      setIsPopupOpen(true);
+      setTimeout(() => {
+        setIsFadeout(true);
+        setTimeout(() => {
+          setIsPopupOpen(false);
+          setIsFadeout(false);
+        }, 500);
+      }, 1000);
+      return;
+    } catch (e){
+      console.log(e);
+      setpopupType("error");
+      setpopupTitle("Lỗi");
+      setPopupMessage("Phát sinh lỗi khi lưu, vui lòng thử lại!");
+      setIsPopupOpen(true);
+      return;
+    }
     // setCurrentStep(0);
   };
 
@@ -186,6 +225,8 @@ const MoneyCard = ({ userInfo }) => {
         message={popupMessage}
         isOpen={isPopupOpen}
         onClose={closePopup}
+        type={popupType}
+        fadeOut={isFadeout}
       />
       {isLoading ? (
         <div className="MoneyCard">
@@ -213,11 +254,11 @@ const MoneyCard = ({ userInfo }) => {
                       lương nào, bạn cần thêm công ty và bảng lương để quản lý!
                     </li>
                     <li>
-                      Chọn <l>Quét mã</l> để nhập cài đặt bảng lương từ người
+                      Chọn <b>Quét mã</b> để nhập cài đặt bảng lương từ người
                       khác!
                     </li>
                     <li>
-                      Hoặc <l>Tự thiết lập</l> để bắt đầu các bước cài đặt!
+                      Hoặc <b>Tự thiết lập</b> để bắt đầu các bước cài đặt!
                     </li>
                   </ul>
                 </div>
@@ -227,7 +268,7 @@ const MoneyCard = ({ userInfo }) => {
                     Quét mã
                   </button>
                   <button className="next" onClick={handleNextStep}>
-                    Tự thiết lập
+                    <FontAwesomeIcon icon={icon.faGears}/> Tự thiết lập
                   </button>
                 </div>
               </div>
@@ -237,25 +278,26 @@ const MoneyCard = ({ userInfo }) => {
                 <div className="logo">
                   <img src={case_icon} alt="case icon" />
                 </div>
-                <div className="title">Công ty và chức vụ của bạn</div>
+                <div className="title">Công ty và lương cơ bản</div>
                 <div className="form-group">
                   <div className="h-name">Tên công ty</div>
                   <div className="h-input">
                     <input
                       ref={companyName}
-                      placeholder="Tên công ty của bạn"
-                      defaultValue={totalData.companyName}
+                      placeholder="tên công ty..."
+                      defaultValue={totalData.companyName?totalData.companyName:"Compal"}
                     />
                   </div>
-                  <div className="h-name">Vị trí</div>
+                  <div className="h-name">Lương cơ bản</div>
                   <div className="h-input">
                     <input
-                      ref={positionName}
-                      placeholder="Chức vụ của bạn"
-                      defaultValue={totalData.positionName}
+                      ref={salarys}
+                      placeholder="lương cơ bản..."
+                      defaultValue={totalData.salarys?totalData.salarys:4300000}
                     />
+                    <div className="sub-input">VND</div>
                   </div>
-                  <div className="h-name">Ngày bắt đầu vào làm</div>
+                  <div className="h-name">Ngày bắt đầu tính lương</div>
                   <div className="h-input">
                     <input
                       ref={startWorkdate}
@@ -269,12 +311,19 @@ const MoneyCard = ({ userInfo }) => {
                   </div>
                 </div>
                 <div className="step-buttons">
-                  <button className="prev" onClick={handlePrevStep}>
-                    Quay lại
-                  </button>
-                  <button className="next" onClick={handleNextStep}>
-                    Tiếp theo
-                  </button>
+                  <div className="left">
+                    <button className="save" onClick={()=>{handlePreview(3)}}>
+                    <FontAwesomeIcon icon={icon.faFloppyDisk} /> Lưu
+                    </button>
+                  </div>
+                  <div className="right">
+                    <button className="prev" onClick={handlePrevStep}>
+                      Quay lại
+                    </button>
+                    <button className="next" onClick={handleNextStep}>
+                      Phụ cấp
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -283,7 +332,7 @@ const MoneyCard = ({ userInfo }) => {
                 <div className="logo">
                   <img src={email_4852081} alt="case icon" />
                 </div>
-                <div className="title">Bảng lương và ngày thanh toán</div>
+                <div className="title">Công và phụ cấp</div>
                 <div className="form-group">
                   <div className="h-name">Ngày chốt công</div>
                   <div className="h-input">
@@ -307,16 +356,6 @@ const MoneyCard = ({ userInfo }) => {
                       defaultValue={26}
                     />
                     <div className="sub-input">ngày công</div>
-                  </div>
-                  <div className="h-name">Lương cơ bản</div>
-                  <div className="h-input">
-                    <input
-                      ref={salarys}
-                      type="number"
-                      placeholder="lương cơ bản"
-                      defaultValue={4300000}
-                    />
-                    <div className="sub-input">VND</div>
                   </div>
                   <div className="h-name">Chuyên cần</div>
                   <div className="h-input">
@@ -384,51 +423,47 @@ const MoneyCard = ({ userInfo }) => {
                         <td>{totalData.companyName}</td>
                       </tr>
                       <tr>
-                        <td>Vị trí</td>
-                        <td>{totalData.positionName}</td>
-                      </tr>
-                      <tr>
                         <td>Lương cơ bản</td>
                         <td>{totalData.salarys}</td>
                       </tr>
-                      <tr>
-                        <td>Chuyên cần</td>
+                      {totalData.chuyencan?(<tr>
+                        <td>Ngày chốt công</td>
                         <td>{totalData.chuyencan}</td>
-                      </tr>
-                      <tr>
-                        <td>Phụ cấp theo ngày</td>
+                      </tr>): null}
+                      {totalData.phucap1?(<tr>
+                        <td>Ngày chốt công</td>
                         <td>{totalData.phucap1}</td>
-                      </tr>
-                      <tr>
-                        <td>Phụ cấp cố định</td>
+                      </tr>): null}
+                      {totalData.phucap2?(<tr>
+                        <td>Ngày chốt công</td>
                         <td>{totalData.phucap2}</td>
-                      </tr>
-                      <tr>
+                      </tr>): null}
+                      {totalData.workFinish?(<tr>
                         <td>Ngày chốt công</td>
                         <td>{totalData.workFinish}</td>
-                      </tr>
+                      </tr>): null}
+                      {totalData.workDays?(<tr>
+                        <td>Ngày chốt công</td>
+                        <td>{totalData.workDays}</td>
+                      </tr>): null}
                       <tr>
                         <td>Tổng lương</td>
                         <td>
                           {parseInt(totalData.salarys) +
-                            parseInt(totalData.chuyencan) +
-                            parseInt(totalData.phucap1) +
-                            parseInt(totalData.phucap2)}
+                            parseInt(totalData.chuyencan)?totalData.chuyencan:0 +
+                            parseInt(totalData.phucap1)?totalData.phucap1:0 +
+                            parseInt(totalData.phucap2)?totalData.phucap2:0}
                         </td>
-                      </tr>
-                      <tr>
-                        <td>Ngày công</td>
-                        <td>{totalData.workDays}</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
                 <div className="step-buttons">
                   <button className="prev" onClick={handlePrevStep}>
-                    Quay lại
+                    <FontAwesomeIcon icon={icon.faPlus}/> Phụ cấp
                   </button>
                   <button className="save" onClick={handleSave}>
-                    Hoàn thành
+                    <FontAwesomeIcon icon={icon.faCheck}/> Hoàn thành
                   </button>
                 </div>
               </div>
@@ -438,10 +473,10 @@ const MoneyCard = ({ userInfo }) => {
       ) : (
         workSheet.map((item, index) => (
           <div key={index} className="MoneyCard">
-            <div className="company">{item.companyName}</div>
+            <div className="company">{item.Company}</div>
             <div className="money">
               <div className="amount">
-                {isViewed ? formatCurrency(item.amount) : "••• ••• •••"}
+                {isViewed ? formatCurrency(item.total_salary?item.total_salary:0) : "••• ••• •••"}
               </div>
               <div className="view" onClick={handleViewToggle}>
                 <FontAwesomeIcon
@@ -449,7 +484,7 @@ const MoneyCard = ({ userInfo }) => {
                 />
               </div>
             </div>
-            <Link to={`/caidat_Luong/${item.id}`} className="caidat">
+            <Link to={`/luong/${item.id}`} className="caidat">
               <div className="txt">Chi tiết bảng lương</div>
               <div className="icon">
                 <FontAwesomeIcon icon={icon.faAngleRight} />

@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation,useNavigate } from "react-router-dom";
 import MoneyCard from "../components/money-cart";
 import BangCong from "../components/bangcong";
 import UserCard from "../components/user-card";
@@ -14,11 +14,16 @@ var sectionStyle = {
   backgroundImage: `url(${Background})`,
 };
 const HomePage = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const { userInfo, setUserInfo } = useUser();
-  if (userInfo) {
-    console.log(userInfo);
-  }
+  useEffect(() => {
+    if (userInfo) {
+      console.log(userInfo);
+    } else {
+      navigate("/");
+    }
+  },[navigate]);
   let startY = 0;
   let isScrolling = false;
 
