@@ -1,5 +1,5 @@
-import React, { Suspense, useEffect } from "react";
-import { useLocation,useNavigate } from "react-router-dom";
+import React, { Suspense, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import MoneyCard from "../components/money-cart";
 import BangCong from "../components/bangcong";
 import UserCard from "../components/user-card";
@@ -8,22 +8,49 @@ import * as icon from "@fortawesome/free-solid-svg-icons";
 import { useUser } from "../context/userContext";
 import Background from "../img/iw_bg_2.png";
 import Iwork_logo from "../img/logo_txt.png";
+import Create_workSheet from "../components/create_worksheet";
 import { getUserInfo, getSetting, authorize } from "zmp-sdk/apis";
+import TodayWork from "../components/todayWork";
+import UpdateTodayWork from "../components/todayWork_update";
 
+function pad(number, length) {
+  return number.toString().padStart(length, "0");
+}
 var sectionStyle = {
   backgroundImage: `url(${Background})`,
 };
+function toDate() {
+  const today = new Date();
+  const month = today.getMonth() + 1;
+  const year = today.getFullYear();
+  const date = today.getDate();
+  console.log(`${year}-${month}-${date}`);
+  return `${year}-${pad(month, 2)}-${pad(date, 2)}`;
+}
 const HomePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [todayWork, settodayWork] = useState(false); // Quản lý các bước thiết lập
   const { userInfo, setUserInfo } = useUser();
+
   useEffect(() => {
     if (userInfo) {
-      console.log(userInfo);
+      if (userInfo.workSheet.items) {
+        userInfo.workSheet.items.forEach((items) => {
+          if (items.WorkRecord) {
+            items.WorkRecord.forEach((record) => {
+              console.log(record);
+              if (record.workDate && record.workDate == toDate(new Date())) {
+                settodayWork(true);
+              }
+            });
+          }
+        });
+      }
     } else {
       navigate("/");
     }
-  },[navigate]);
+  }, [navigate]);
   let startY = 0;
   let isScrolling = false;
 
@@ -32,7 +59,6 @@ const HomePage = () => {
     const handleScroll = () => {
       isScrolling = true;
       clearTimeout(scrollTimeout);
-
       const homeBody = document.querySelector(".home-body");
       const topContainer = homeBody?.querySelector(".top-container");
       const MoneyCard = homeBody?.querySelectorAll(".MoneyCard");
@@ -117,29 +143,15 @@ const HomePage = () => {
             </div>
           </div>
           <div className="fast-option">
-            <MoneyCard userInfo={userInfo} />
+            {userInfo?.workSheet?.items.length > 0 ? (
+              <MoneyCard />
+            ) : (
+              <Create_workSheet />
+            )}
           </div>
         </div>
         <div className="body-main">
-          <div className="pd0x10">
-            <div className="message-container">
-              <div className="message">Hôm nay bạn có đi làm không?</div>
-              <div className="options">
-                <div className="items active">
-                  <div className="logo">
-                    <FontAwesomeIcon icon={icon.faCalendarCheck} />
-                  </div>
-                  <div className="text">Chấm công ngay!</div>
-                </div>
-                <div className="items">
-                  <div className="logo">
-                    <FontAwesomeIcon icon={icon.faCalendar} />
-                  </div>
-                  <div className="text">Hôm nay nghỉ!</div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {todayWork ? <UpdateTodayWork /> : <TodayWork />}
           <div className="h3 top10">Bảng công</div>
           <div className="h-items pd0x10">
             <BangCong userInfo={userInfo} />

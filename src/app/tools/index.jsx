@@ -36,12 +36,30 @@ const Index = () => {
         });
         if (loginData) {
           userInfo.login = loginData;
-          setTimeout(() => {
-            navigate("/home/"); // Truyền userInfo vào state khi điều hướng
+          // Lấy thông tin về lương
+          try {
+            const response = await fetch.gets(
+              "/worksheet_list_details",
+              userInfo.login.token
+            );
+            setUserInfo((prevUser) => ({
+              ...prevUser,
+              workSheet: response,
+            }));
+          } catch (error) {
+            console.log(error);
+            setUserInfo((prevUser) => ({
+              ...prevUser,
+              workSheet: [],
+            }));
+          } finally {
             setTimeout(() => {
-              setLoading(false); // Tắt màn hình loading sau khi fade out hoàn tất
-            }, 500); // Thời gian phù hợp với thời gian transition trong CSS
-          }, 1000); // Đảm bảo loading hiển thị ít nhất 1 giây trước khi fade out
+              navigate("/home/"); // về trang chủ
+              setTimeout(() => {
+                setLoading(false); // Tắt màn hình loading sau khi fade out hoàn tất
+              }, 500); // Thời gian phù hợp với thời gian transition trong CSS
+            }, 1000); // Đảm bảo loading hiển thị ít nhất 1 giây trước khi fade out
+          }
         } else {
           console.error("Failed to login:", loginData);
         }
