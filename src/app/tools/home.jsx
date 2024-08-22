@@ -11,6 +11,7 @@ import Iwork_logo from "../img/logo_txt.png";
 import Create_workSheet from "../components/create_worksheet";
 import { getUserInfo, getSetting, authorize } from "zmp-sdk/apis";
 import TodayWork from "../components/todayWork";
+import TodayWorked from "../components/todayWorked";
 import UpdateTodayWork from "../components/todayWork_update";
 
 function pad(number, length) {
@@ -39,9 +40,13 @@ const HomePage = () => {
         userInfo.workSheet.items.forEach((items) => {
           if (items.WorkRecord) {
             items.WorkRecord.forEach((record) => {
-              console.log(record);
               if (record.workDate && record.workDate == toDate(new Date())) {
-                settodayWork(true);
+                if (record.lateTime != null && record.overTime != null) {
+                  settodayWork("done");
+                } else {
+                  settodayWork(true);
+                }
+                console.log(record.lateTime, record.overTime, todayWork);
               }
             });
           }
@@ -50,7 +55,7 @@ const HomePage = () => {
     } else {
       navigate("/");
     }
-  }, [navigate]);
+  }, [userInfo, navigate]);
   let startY = 0;
   let isScrolling = false;
 
@@ -151,10 +156,10 @@ const HomePage = () => {
           </div>
         </div>
         <div className="body-main">
-          {todayWork ? <UpdateTodayWork /> : <TodayWork />}
+          {todayWork ? <TodayWorked /> : <TodayWork />}
           <div className="h3 top10">Bảng công</div>
           <div className="h-items pd0x10">
-            <BangCong userInfo={userInfo} />
+            <BangCong />
           </div>
           <div className="h3 top10">Tiện ích</div>
           <div className="h-items pd0x10">

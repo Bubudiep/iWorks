@@ -4,11 +4,10 @@ import * as icon from "@fortawesome/free-solid-svg-icons";
 import ApiClient from "../components/api";
 import { useUser } from "../context/userContext";
 
-function pad(number, length) {
-  return number.toString().padStart(length, "0");
-}
-
 function toDate() {
+  function pad(number, length) {
+    return number.toString().padStart(length, "0");
+  }
   const today = new Date();
   const month = today.getMonth() + 1;
   const year = today.getFullYear();
@@ -18,9 +17,10 @@ function toDate() {
 }
 const TodayWork = () => {
   const { userInfo, setUserInfo } = useUser();
+  const [loading, setLoading] = useState(false);
   const fetchData = ApiClient();
   const handleChamCongNgay = async () => {
-    console.log(userInfo);
+    setLoading(true); // Start loading
     try {
       // Call the API to update user info
       const chamcong = await fetchData.post(
@@ -36,21 +36,19 @@ const TodayWork = () => {
           userInfo.login.token
         );
         setUserInfo((prevUser) => ({ ...prevUser, workSheet: response }));
-        console.log(userInfo);
       } else {
         console.error("Failed to update user info");
       }
     } catch (error) {
       console.error("Error calling the API:", error);
+    } finally {
+      setLoading(false); // End loading
     }
   };
   return (
     <div className="pd0x10">
       <div className="message-container">
         <div className="message">
-          {/* <div className="name">Tiền chuyên cần và lương hôm nay </div>
-          <div className="money">900,000</div> */}
-
           <div className="flex g5">
             <div className="card">
               <div className="name">Tiền lương</div>
@@ -66,7 +64,11 @@ const TodayWork = () => {
         <div className="options">
           <div className="items active" onClick={handleChamCongNgay}>
             <div className="logo">
-              <FontAwesomeIcon icon={icon.faCalendarCheck} />
+              {loading ? (
+                <div className="loading-spinner"></div>
+              ) : (
+                <FontAwesomeIcon icon={icon.faCalendarCheck} />
+              )}
             </div>
             <div className="text">Chấm công ngay!</div>
           </div>

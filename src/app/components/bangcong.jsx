@@ -6,8 +6,19 @@ import {
   faAngleRight,
 } from "@fortawesome/free-solid-svg-icons";
 import ApiClient from "./api";
+import { useUser } from "../context/userContext";
 
-const Bangcong = ({ userInfo }) => {
+function toDate(today = new Date()) {
+  function pad(number, length) {
+    return number.toString().padStart(length, "0");
+  }
+  const month = today.getMonth() + 1;
+  const year = today.getFullYear();
+  const date = today.getDate();
+  return `${year}-${pad(month, 2)}-${pad(date, 2)}`;
+}
+const Bangcong = () => {
+  const { userInfo, setUserInfo } = useUser();
   const [currentDate, setCurrentDate] = useState(new Date());
   const daysInMonth = new Date(
     currentDate.getFullYear(),
@@ -22,32 +33,44 @@ const Bangcong = ({ userInfo }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [daysData, setDaysData] = useState(allDaysData);
   const [detailInfo, setDetailInfo] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // State để theo dõi trạng thái loading
   const popupRef = useRef(null);
 
   const fetchs = ApiClient();
 
   useEffect(() => {
-    const fetchData = async () => {
-      const data = [];
-      try {
-        const response = await fetchs.gets("/workrecord", userInfo.login.token);
-        data = response.items;
-      } catch (error) {
-      } finally {
-      }
-
-      const updatedDaysData = allDaysData.map((day) => ({
-        ...day,
-        active: data.some(
-          (activeDay) => activeDay.date === day.date && activeDay.active
-        ),
-      }));
-      console.log(updatedDaysData);
-      setDaysData(updatedDaysData);
-    };
-
-    fetchData();
-  }, [currentDate]);
+    if (userInfo?.login?.token) {
+      setIsLoading(true);
+      const fetchData = async () => {
+        const data = [];
+        try {
+          const response = await fetchs.gets(
+            "/workrecord",
+            userInfo.login.token
+          );
+          if (response.items) {
+            const updatedDaysData = allDaysData.map((daydata) => {
+              const date = new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth(),
+                daydata.date
+              );
+              const isActive = response.items.some(
+                (item) => toDate(date) === toDate(new Date(item.workDate))
+              );
+              return isActive ? { date: daydata.date, active: true } : daydata;
+            });
+            setDaysData(updatedDaysData);
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchData();
+    }
+  }, [userInfo, currentDate]);
 
   const goToPreviousMonth = () => {
     setCurrentDate(
@@ -138,16 +161,40 @@ const Bangcong = ({ userInfo }) => {
     };
   }, []);
 
-  const handleDateClick = (day) => {
-    const demoData = {
-      checkIn: `07:56:02 sáng`,
-      checkOut: `17:22:01 chiều`,
-      overtime: `02:20:52`,
-      late: `-`,
-      notes: `Làm việc ngoài giờ để hoàn thành dự án.`,
-    };
-    setDetailInfo(demoData);
-    setSelectedDate(day);
+  const handleDateClick = async (day) => {
+    const date = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      day
+    );
+    console.log(toDate(date));
+    const response = await fetchs.gets(
+      `/workrecord?workDate=${toDate(date)}`,
+      userInfo.login.token
+    );
+    console.log(response);
+    if (response.items.length == 1) {
+      var dta = response.items[0];
+      const demoData = {
+        checkIn: dta.startTime,
+        checkOut: dta.endTime,
+        overtime: `02:20:52`,
+        late: `-`,
+        notes: `Làm việc ngoài giờ để hoàn thành dự án.`,
+      };
+      setDetailInfo(demoData);
+      setSelectedDate(day);
+    } else {
+      const demoData = {
+        checkIn: `07:56:02 sáng`,
+        checkOut: `17:22:01 chiều`,
+        overtime: `02:20:52`,
+        late: `-`,
+        notes: `Làm việc ngoài giờ để hoàn thành dự án.`,
+      };
+      setDetailInfo(demoData);
+      setSelectedDate(day);
+    }
   };
 
   const formatDate = (day) => {
@@ -178,25 +225,30 @@ const Bangcong = ({ userInfo }) => {
           <FontAwesomeIcon icon={faAngleRight} />
         </button>
       </div>
-      <table>
-        <thead>
-          <tr>
-            {[
-              "Thứ 2",
-              "Thứ 3",
-              "Thứ 4",
-              "Thứ 5",
-              "Thứ 6",
-              "Thứ 7",
-              "Chủ nhật",
-            ].map((day) => (
-              <th key={day}>{day}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>{weeks}</tbody>
-      </table>
-
+      {isLoading ? (
+        <div className="ninebox">
+          <div className="loading-spinner"></div>
+        </div>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              {[
+                "Thứ 2",
+                "Thứ 3",
+                "Thứ 4",
+                "Thứ 5",
+                "Thứ 6",
+                "Thứ 7",
+                "Chủ nhật",
+              ].map((day) => (
+                <th key={day}>{day}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>{weeks}</tbody>
+        </table>
+      )}
       {selectedDate !== null && detailInfo && (
         <div className="popup">
           <div className="popup-content" ref={popupRef}>

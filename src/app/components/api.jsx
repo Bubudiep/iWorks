@@ -44,12 +44,13 @@ const ApiClient = (host = "localhost:5000", port = 5000) => {
       }
       return response.json();
     },
-    patch: async (endpoint, body) => {
+    patch: async (endpoint, body, token) => {
       const response = await fetch(`${baseUrl}${endpoint}`, {
         method: "PATCH",
         referrerPolicy: "no-referrer", // Chỉ định chính sách không gửi trường Referer
         headers: {
           "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
         },
         body: JSON.stringify(body),
       });
