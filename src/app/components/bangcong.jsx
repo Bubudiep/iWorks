@@ -7,6 +7,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import ApiClient from "./api";
 import { useUser } from "../context/userContext";
+import BangcongChitiet from './bangcong_date_popup';
 
 function toDate(today = new Date()) {
   function pad(number, length) {
@@ -32,7 +33,6 @@ const Bangcong = () => {
   }));
   const [selectedDate, setSelectedDate] = useState(null);
   const [daysData, setDaysData] = useState(allDaysData);
-  const [detailInfo, setDetailInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false); // State để theo dõi trạng thái loading
   const popupRef = useRef(null);
 
@@ -167,34 +167,7 @@ const Bangcong = () => {
       currentDate.getMonth(),
       day
     );
-    console.log(toDate(date));
-    const response = await fetchs.gets(
-      `/workrecord?workDate=${toDate(date)}`,
-      userInfo.login.token
-    );
-    console.log(response);
-    if (response.items.length == 1) {
-      var dta = response.items[0];
-      const demoData = {
-        checkIn: dta.startTime,
-        checkOut: dta.endTime,
-        overtime: `02:20:52`,
-        late: `-`,
-        notes: `Làm việc ngoài giờ để hoàn thành dự án.`,
-      };
-      setDetailInfo(demoData);
-      setSelectedDate(day);
-    } else {
-      const demoData = {
-        checkIn: `07:56:02 sáng`,
-        checkOut: `17:22:01 chiều`,
-        overtime: `02:20:52`,
-        late: `-`,
-        notes: `Làm việc ngoài giờ để hoàn thành dự án.`,
-      };
-      setDetailInfo(demoData);
-      setSelectedDate(day);
-    }
+    setSelectedDate(toDate(date));
   };
 
   const formatDate = (day) => {
@@ -249,44 +222,7 @@ const Bangcong = () => {
           <tbody>{weeks}</tbody>
         </table>
       )}
-      {selectedDate !== null && detailInfo && (
-        <div className="popup">
-          <div className="popup-content" ref={popupRef}>
-            <div className="title">
-              <div className="text">{formatDate(selectedDate)}</div>
-              <div className="close" onClick={() => setSelectedDate(null)}>
-                &times;
-              </div>
-            </div>
-            <div className="details">
-              <table>
-                <tbody>
-                  <tr>
-                    <td>Giờ vào</td>
-                    <td>{detailInfo.checkIn}</td>
-                  </tr>
-                  <tr>
-                    <td>Giờ ra</td>
-                    <td>{detailInfo.checkOut}</td>
-                  </tr>
-                  <tr>
-                    <td>Tăng ca</td>
-                    <td>{detailInfo.overtime}</td>
-                  </tr>
-                  <tr>
-                    <td>Vào muộn</td>
-                    <td>{detailInfo.late}</td>
-                  </tr>
-                  <tr>
-                    <td>Ghi chú</td>
-                    <td>{detailInfo.notes}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
+      {selectedDate !== null && <BangcongChitiet date={selectedDate} />}
     </div>
   );
 };
