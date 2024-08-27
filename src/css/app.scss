@@ -153,6 +153,12 @@
                   color: #58a7af;
                 }
               }
+              &.off {
+                color: #e0806f;
+                svg {
+                  color: #e0806f;
+                }
+              }
               &.active {
                 color: #4d9aff;
                 svg {
@@ -522,13 +528,24 @@
             background-color: #e9f3fd;
             color: #1181d3;
             font-weight: 500;
+            svg {
+              font-size: 0.7rem;
+              position: absolute;
+              right: 4px;
+              top: 4px;
+              color: #0479ff;
+            }
           }
-          svg {
-            font-size: 0.7rem;
-            position: absolute;
-            right: 4px;
-            top: 4px;
-            color: #0479ff;
+          &.notactive {
+            background-color: #fdf4e9;
+            color: #d34e11;
+            svg {
+              font-size: 0.7rem;
+              position: absolute;
+              right: 4px;
+              top: 4px;
+              color: #e0806f;
+            }
           }
         }
       }
@@ -901,6 +918,9 @@
     width: 100%;
     height: 100%;
   }
+  .pd10{
+    padding: 10px;
+  }
   .show-card {
     width: 85%;
     display: flex;
@@ -913,6 +933,38 @@
     animation: slideUp 0.5s ease-in-out forwards;
     overflow: hidden;
     /* Áp dụng animation cho .step-box */
+    .form-table{
+      padding: 5px 10px;
+      table{
+        width: 100%;
+        tr{
+          td{
+            position: relative;
+            &:first-child{
+              text-align: left;
+              padding: 0px 5px;
+            }
+            &:last-child{
+              text-align: right;
+            }
+            input,select{
+              border: 1px solid #e0e0e0;
+              padding: 5px;
+              border-radius: 5px;
+              outline: none;
+            }
+            .sub-input{
+              position: absolute;
+              right: 10px;
+              top: 10px;
+            }
+          }
+        }
+      }
+    }
+    &.mini{
+      padding: 0px;
+    }
     .step-box {
       display: flex;
       flex-direction: column;
@@ -935,12 +987,32 @@
       font-size: 1rem;
       color: #0394f5;
     }
+    .title2 {
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+      font-size: 1rem;
+      padding: 10px 10px 0px 10px;
+      color: #0394f5;
+    }
+    .off{
+      .title2 {
+        color: #f57503;
+      }
+    }
     .message {
       white-space: wrap;
       display: flex;
       color: #000;
       font-size: 0.85rem;
       padding: 5px;
+      color: #999;
+    }
+    .message2 {
+      white-space: wrap;
+      display: flex;
+      color: #000;
+      padding: 20px 10px;
       color: #999;
     }
     .step-buttons {
@@ -981,6 +1053,48 @@
       border-radius: 5px;
       margin-left: auto;
     }
+    .options {
+      display: flex;
+      .items {
+        border-top: 1px solid #00000015;
+        flex: 1;
+        display: flex;
+        gap: 10px;
+        padding: 10px;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: nowrap;
+        border-left: 1px solid #00000015;
+        color: #0005;
+        .logo{
+          padding: 0px;
+        }
+        svg {
+          color: rgba(156, 156, 156, 0.333);
+        }
+        &.off {
+          color: #e0806f;
+          svg {
+            color: #e0806f;
+          }
+        }
+        &.nope {
+          color: #58a7af;
+          svg {
+            color: #58a7af;
+          }
+        }
+        &.active {
+          color: #4d9aff;
+          svg {
+            color: #4d9aff;
+          }
+        }
+        &:first-child {
+          border-left: hidden;
+        }
+      }
+    }
   }
 }
 .pd5 {
@@ -1000,7 +1114,7 @@
     align-items: center;
     gap: 10px;
     color: #999;
-    input {
+    input,select {
       border: 1px solid #dadada;
       border-radius: 8px;
       overflow: hidden !important;

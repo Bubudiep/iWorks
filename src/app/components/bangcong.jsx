@@ -4,10 +4,11 @@ import {
   faCheck,
   faAngleLeft,
   faAngleRight,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import ApiClient from "./api";
 import { useUser } from "../context/userContext";
-import BangcongChitiet from './bangcong_date_popup';
+import DayCell from "./dayCell";
 
 function toDate(today = new Date()) {
   function pad(number, length) {
@@ -29,23 +30,22 @@ const Bangcong = () => {
   // Tạo dữ liệu cho tất cả các ngày trong tháng với trạng thái không active
   const allDaysData = Array.from({ length: daysInMonth }, (_, i) => ({
     date: i + 1,
-    active: false,
+    active: 'idle',
   }));
-  const [selectedDate, setSelectedDate] = useState(null);
   const [daysData, setDaysData] = useState(allDaysData);
   const [isLoading, setIsLoading] = useState(false); // State để theo dõi trạng thái loading
-  const popupRef = useRef(null);
 
   const fetchs = ApiClient();
 
   useEffect(() => {
     if (userInfo?.login?.token) {
+      console.log("Reload loading...");
       setIsLoading(true);
       const fetchData = async () => {
         const data = [];
         try {
           const response = await fetchs.gets(
-            "/workrecord",
+            "/workrecord?per_page=999&month="+(currentDate.getMonth()+1)+"&year="+currentDate.getFullYear(),
             userInfo.login.token
           );
           if (response.items) {
@@ -55,10 +55,18 @@ const Bangcong = () => {
                 currentDate.getMonth(),
                 daydata.date
               );
-              const isActive = response.items.some(
+              const matchingItem = response.items.find(
                 (item) => toDate(date) === toDate(new Date(item.workDate))
               );
-              return isActive ? { date: daydata.date, active: true } : daydata;
+
+              if (matchingItem) {
+                return {
+                  date: daydata.date,
+                  active: matchingItem.isWorking ? 'true' : 'false',
+                };
+              }
+
+              return daydata;
             });
             setDaysData(updatedDaysData);
           }
@@ -107,17 +115,21 @@ const Bangcong = () => {
   }
   if (daysData.length > 0) {
     daysData.forEach(({ date, active }, index) => {
+      const inactive = active === "true" ? "active" : active === "false" ? "notactive" : "";
+      
+      const fulldate = toDate(new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        date
+      ));
       days.push(
-        <td
+        <DayCell
           key={date}
-          className={active ? "table-cell active" : "table-cell"}
-          onClick={() => handleDateClick(date)}
-        >
-          <div className="text">{date}</div>
-          {active && <FontAwesomeIcon icon={faCheck} className="active-icon" />}
-        </td>
+          date={date}
+          fulldate={fulldate}
+          inactive={inactive}
+        />
       );
-
       if (
         (index + adjustedFirstDay + 1) % 7 === 0 ||
         index === daysData.length - 1
@@ -143,47 +155,6 @@ const Bangcong = () => {
       </option>
     );
   });
-
-  const handleClickOutside = (event) => {
-    if (
-      event.button === 0 &&
-      popupRef.current &&
-      !popupRef.current.contains(event.target)
-    ) {
-      setSelectedDate(null);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const handleDateClick = async (day) => {
-    const date = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day
-    );
-    setSelectedDate(toDate(date));
-  };
-
-  const formatDate = (day) => {
-    if (!selectedDate) return "";
-    const date = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day
-    );
-    return date.toLocaleDateString("vi-VN", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   return (
     <div className="lich-bangcong">
@@ -222,7 +193,6 @@ const Bangcong = () => {
           <tbody>{weeks}</tbody>
         </table>
       )}
-      {selectedDate !== null && <BangcongChitiet date={selectedDate} />}
     </div>
   );
 };

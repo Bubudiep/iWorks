@@ -12,6 +12,7 @@ import Create_workSheet from "../components/create_worksheet";
 import { getUserInfo, getSetting, authorize } from "zmp-sdk/apis";
 import TodayWork from "../components/todayWork";
 import TodayWorked from "../components/todayWorked";
+import TodayWorkOff from "../components/todayWorkOff";
 import UpdateTodayWork from "../components/todayWork_update";
 
 function pad(number, length) {
@@ -41,12 +42,11 @@ const HomePage = () => {
           if (items.WorkRecord) {
             items.WorkRecord.forEach((record) => {
               if (record.workDate && record.workDate == toDate(new Date())) {
-                if (record.lateTime != null && record.overTime != null) {
+                if (record.isWorking==false) {
                   settodayWork("done");
                 } else {
                   settodayWork(true);
                 }
-                console.log(record.lateTime, record.overTime, todayWork);
               }
             });
           }
@@ -156,7 +156,7 @@ const HomePage = () => {
           </div>
         </div>
         <div className="body-main">
-          {todayWork ? <TodayWorked /> : <TodayWork />}
+          {todayWork ? todayWork=="done" ? <TodayWorkOff /> :  <TodayWorked /> : <TodayWork />}
           <div className="h3 top10">Bảng công</div>
           <div className="h-items pd0x10">
             <BangCong />
