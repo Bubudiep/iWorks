@@ -1069,6 +1069,11 @@
         .logo{
           padding: 0px;
         }
+        .text{
+          display: flex;
+          gap: 10px;
+          align-items: center;
+        }
         svg {
           color: rgba(156, 156, 156, 0.333);
         }

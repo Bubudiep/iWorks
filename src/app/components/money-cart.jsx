@@ -42,7 +42,66 @@ const MoneyCard = () => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
-    }).format(amount);
+    }).format(amount).replace("₫","VND").replaceAll(".",",");;
+  };
+  const calculateSalary = (workSalary, workRecord) => {
+    if (!workSalary || !workRecord) return 0;
+    var totalSalary = 0;
+    var fixedSalary = 0;
+    var workHours=0, OT=0, CN=0;
+    var songaycong=0;
+    workRecord.forEach(record => {
+      if (record.isWorking) {
+        songaycong++;
+        var thisWorktime=8;
+        if (new Date(record.workDate).getDay()==0){ // Đi làm chủ nhật
+          if (record.startTime!=null && record.endTime!=null) {
+            thisWorktime=(new Date(record.endTime)-new Date(record.startTime)) / (1000 * 60 * 60);
+          } else {
+            thisWorktime = thisWorktime-record.lateTime;
+          }
+          CN += thisWorktime;
+        } else { // Đi làm ngày thường
+          if (record.startTime!=null && record.endTime!=null) {
+            thisWorktime=(new Date(record.endTime)-new Date(record.startTime)) / (1000 * 60 * 60);
+          } else {
+            thisWorktime = thisWorktime-record.lateTime;
+          }
+          workHours += thisWorktime;
+        }
+        OT+=record.overTime;
+      }
+    })
+    workSalary.forEach(items=>{
+      if (items.isMonthly==false){
+        totalSalary+=items.Salary;
+      } else {
+        fixedSalary+=items.Salary;
+      }
+    })
+    var luong1gio=Math.round(totalSalary/26/8);
+    var luongTonggiolam=luong1gio*workHours;
+    var luongTangca=luong1gio*OT*1.5;
+    var luongCN=CN*luong1gio*2;
+    if (songaycong<26) fixedSalary=0;
+    var tongLuong=luongTonggiolam+luongTangca+fixedSalary+luongCN;
+    console.log({
+      Luong1Gio:luong1gio,
+      LuongVaPhucaptheogio:totalSalary,
+      PhucapCodinh:fixedSalary,
+      SogioDilam:workHours,
+      SogioTangCa:OT,
+      LuongDilam:luongTonggiolam,
+      LuongTangca:luongTangca,
+      luongCN:luongCN,
+      TongLuong:tongLuong
+    })
+    return tongLuong;
+    // const basicDailySalary = workSalary / 26; // Lương cơ bản chia cho 26 công
+    // const hourlyRate = basicDailySalary / 8; // Chia cho 8 giờ làm việc
+    // const totalHoursWorked = workRecord.reduce((acc, record) => acc + record.hours, 0); // Tổng số giờ làm việc
+
+    // return hourlyRate * totalHoursWorked;
   };
   return (
     <div className="listCard">
@@ -63,7 +122,7 @@ const MoneyCard = () => {
             <div className="money">
               <div className="amount">
                 {isViewed
-                  ? formatCurrency(item.total_salary ? item.total_salary : 0)
+                  ? formatCurrency(calculateSalary(item.WorkSalary, item.WorkRecord))
                   : "••• ••• •••"}
               </div>
               <div className="view" onClick={handleViewToggle}>

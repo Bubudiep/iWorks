@@ -18,6 +18,7 @@ function toDate() {
   console.log(`${year}-${month}-${date}`);
   return `${year}-${pad(month, 2)}-${pad(date, 2)}`;
 }
+let luongHomnay = 0,chuyenCan = 0,tangCa = 0, phuCapkhac=0;
 const TodayWorked = () => {
   const { userInfo, setUserInfo } = useUser();
   const [loading, setLoading] = useState(false);
@@ -31,7 +32,6 @@ const TodayWorked = () => {
     const timer = setTimeout(() => {
       setFadeOut(true); // Trigger fade out after 2 seconds
     }, 2000);
-
     return () => clearTimeout(timer); // Cleanup timer on component unmount
   }, []);
   const fetchData = ApiClient();
@@ -72,9 +72,8 @@ const TodayWorked = () => {
     if (
       userInfo?.workSheet?.items.length > 0 &&
       userInfo?.workSheet?.items[0]?.WorkRecord
-    )
+    ) {
       userInfo?.workSheet?.items[0]?.WorkRecord.forEach(async (record) => {
-        console.log(record);
         if (record.workDate == toDate()) {
           try {
             // Call the API to update user info
@@ -103,7 +102,39 @@ const TodayWorked = () => {
           }
         }
       });
+    }
   };
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(amount).replace("₫","VND").replaceAll(".",",");;
+  };
+  const checkWorkmoney = () => {
+    luongHomnay = 0,chuyenCan = 0,tangCa = 0, phuCapkhac=0;
+    if (userInfo?.workSheet?.items.length > 0) {
+      var totalSalary=0, fixedSalary=0;
+      userInfo.workSheet.items[0].WorkSalary.forEach(items=>{
+        if (items.isMonthly==false){
+          totalSalary+=items.Salary;
+        } else {
+          if (items.SalaryName=="Chuyên cần"){
+            fixedSalary+=items.Salary
+          } else {
+            phuCapkhac+=items.Salary
+          }
+        }
+      })
+      userInfo?.workSheet?.items[0]?.WorkRecord.forEach(async (record) => {
+        if (record.workDate == toDate()) {
+          tangCa=(record.overTime)*Math.round(totalSalary/26/8)
+        }
+      });
+      luongHomnay=Math.round(totalSalary/26);
+      chuyenCan=fixedSalary;
+    }
+  };
+  checkWorkmoney();
   return (
     <div className="pd0x10">
       {showPopup && (
@@ -200,15 +231,19 @@ const TodayWorked = () => {
           <div className="logos">
             <img src={Working} />
           </div>
-          <div className="salary">+1,800,000 VND</div>
+          <div className="salary">+{formatCurrency(luongHomnay+tangCa+chuyenCan+phuCapkhac)}</div>
           <div className="flex g5">
             <div className="card">
-              <div className="name">Lương 8 tiếng</div>
-              <div className="salary2">+ 900,000 VND</div>
+              <div className="name">Lương</div>
+              <div className="salary2">+{formatCurrency(luongHomnay+tangCa)}</div>
             </div>
             <div className="fc f1 card">
               <div className="name">Chuyên cần</div>
-              <div className="salary2">+ 900,000 VND</div>
+              <div className="salary2">+{formatCurrency(chuyenCan)}</div>
+            </div>
+            <div className="fc f1 card">
+              <div className="name">Khác</div>
+              <div className="salary2">+{formatCurrency(phuCapkhac)}</div>
             </div>
           </div>
         </div>

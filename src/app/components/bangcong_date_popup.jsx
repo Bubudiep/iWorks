@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as icon from "@fortawesome/free-solid-svg-icons";
 import iw_logo from "../img/alert.png";
 import ApiClient from "./api";
 import { useUser } from "../context/userContext";
 
+var date_id = null;
+let startTime = "08:00",
+  endTime = "17:00", tangCa=0, vaoMuon=0;
 const BangcongChitiet = ({ date }) => {
   const { userInfo, setUserInfo } = useUser();
   const fetchs = ApiClient();
@@ -15,6 +18,10 @@ const BangcongChitiet = ({ date }) => {
   const [loading, setLoading] = useState(false); // State for loading
   const [loading2, setLoading2] = useState(false); // State for loading
   const [showPopup, setShowPopup] = useState(false); // State to control popup visibility
+  const gioDimuon = useRef(null);
+  const gioVao = useRef(null);
+  const gioRa = useRef(null);
+  const gioTangca = useRef(null);
   useEffect(() => {
     console.log(date);
     if (date) checkDate(date);
@@ -50,7 +57,6 @@ const BangcongChitiet = ({ date }) => {
 
   const handleNghihomnay = async () => {
     setLoading2(true); // Start loading
-    console.log(date);
     try {
       const chamcong = await fetchs.post(
         "/nghi-viec-ngay",
@@ -84,14 +90,28 @@ const BangcongChitiet = ({ date }) => {
         `/workrecord?workDate=${date}`,
         userInfo.login.token
       );
-      console.log(response);
-
       if (response.items.length === 1) {
         if (response.items[0].isWorking == true) {
           setIsWorking(true);
         } else {
           setIsWorking(false);
         }
+        if (response.items[0].startTime) {
+          startTime =
+            response.items[0].startTime.split(" ")[1].split(":")[0] +
+            ":" +
+            response.items[0].startTime.split(" ")[1].split(":")[1];
+        }
+        if (response.items[0].endTime) {
+          endTime =
+            response.items[0].endTime.split(" ")[1].split(":")[0] +
+            ":" +
+            response.items[0].endTime.split(" ")[1].split(":")[1];
+        }
+        tangCa = response.items[0].overTime || 0;
+        vaoMuon = response.items[0].lateTime || 0;
+        date_id = response.items[0].id;
+        console.log(date_id);
         setShowForm(true);
         setTitle(`Ngày ${date}`);
         setMessage(""); // Clear any previous message
@@ -107,7 +127,39 @@ const BangcongChitiet = ({ date }) => {
       setLoading(false); // End loading
     }
   }
-  const handleUpdatengay = () => {};
+  const handleUpdatengay = () => {
+    console.log();
+  };
+  const handleUpdatedilam = async () => {
+    const updateData = {
+      startTime: date + " " + gioVao.current.value + ":00",
+      endTime: date + " " + gioRa.current.value + ":00",
+      overTime: gioTangca.current.value || 0,
+      lateTime: gioDimuon.current.value || 0,
+    };
+    setLoading2(true); // Start loading
+    try {
+      console.log(date_id,updateData);
+      const response = await fetchs.patch(
+        `/workrecord/${date_id}`,
+        updateData,
+        userInfo.login.token
+      );
+      console.log(response);
+    } catch (error) {
+    } finally {
+      const response = await fetchs.gets(
+        "/worksheet_list_details",
+        userInfo.login.token
+      );
+      setUserInfo((prevUser) => ({
+        ...prevUser,
+        workSheet: response,
+      }));
+      console.log(userInfo);
+      setLoading2(false); // End loading
+    }
+  };
   return (
     showPopup && (
       <>
@@ -126,26 +178,42 @@ const BangcongChitiet = ({ date }) => {
                       <tr>
                         <td>Giờ vào</td>
                         <td>
-                          <input type="time" defaultValue={"08:00:00"} />
+                          <input
+                            type="time"
+                            ref={gioVao}
+                            defaultValue={startTime}
+                          />
                         </td>
                       </tr>
                       <tr>
                         <td>Giờ ra</td>
                         <td>
-                          <input type="time" defaultValue={"17:00:00"} />
+                          <input
+                            type="time"
+                            ref={gioRa}
+                            defaultValue={endTime}
+                          />
                         </td>
                       </tr>
                       <tr>
                         <td>Tăng ca</td>
                         <td>
-                          <input type="number" defaultValue={0} />
+                          <input
+                            type="number"
+                            ref={gioTangca}
+                            defaultValue={tangCa}
+                          />
                           <div className="sub-input">giờ</div>
                         </td>
                       </tr>
                       <tr>
                         <td>Đi muộn</td>
                         <td>
-                          <input type="number" defaultValue={0} />
+                          <input
+                            type="number"
+                            ref={gioDimuon}
+                            defaultValue={vaoMuon}
+                          />
                           <div className="sub-input">giờ</div>
                         </td>
                       </tr>
@@ -153,8 +221,11 @@ const BangcongChitiet = ({ date }) => {
                   </table>
                 </div>
                 <div className="options">
-                  <div className="items active" onClick={handleUpdatengay}>
-                    <div className="text">Lưu lại</div>
+                  <div className="items active" onClick={handleUpdatedilam}>
+                    <div className="text">
+                      {loading2 && <div className="loading-spinner"></div>}
+                      Lưu lại
+                    </div>
                   </div>
                   <div className="items off" onClick={handleNghihomnay}>
                     <div className="text">Nghỉ</div>

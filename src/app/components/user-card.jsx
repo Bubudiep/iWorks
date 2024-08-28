@@ -9,7 +9,7 @@ const getGreeting = () => {
   } else if (currentHour < 12) {
     return "Chuẩn bị ăn cơm thôi!";
   } else if (currentHour < 18) {
-    return "Chào buổi chiều, nghỉ ngơi thôi!";
+    return "Chào buổi chiều, nghỉ thôi!";
   } else {
     return "Chúc bạn buổi tối vui vẻ!";
   }
