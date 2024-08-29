@@ -39,48 +39,19 @@ const CreateWorkSheet = () => {
     salarys: useRef(0),
     phucap1: useRef(0),
     phucap2: useRef(0),
+    phucap3: useRef(0),
     workFinish: useRef(1),
     startWorkdate: useRef(null),
     chuyencan: useRef(300000),
     ngaychuyencan: useRef(26),
+    calamviec: useRef(null),
+    ngaynghi: useRef(null),
+    luongtinhtangca: useRef(0),
+    luongkhongtinhtangca: useRef(0),
   };
 
   const fetchData = ApiClient();
-
-  const validateStep = () => {
-    const validations = [
-      {
-        step: 1,
-        checks: [
-          { ref: "companyName", message: "Bạn chưa nhập tên công ty!" },
-          { ref: "salarys", message: "Bạn chưa nhập lương cơ bản!" },
-        ],
-      },
-      {
-        step: 2,
-        checks: [
-          { ref: "workDays", message: "Bạn chưa nhập số ngày làm việc!" },
-          { ref: "phucap1", message: "Bạn chưa nhập phụ cấp cố định!" },
-          { ref: "phucap2", message: "Bạn chưa nhập phụ cấp tính theo ngày!" },
-        ],
-      },
-    ];
-
-    const validation = validations.find((v) => v.step === currentStep);
-    if (validation) {
-      for (const { ref, message } of validation.checks) {
-        if (!refs[ref].current?.value) {
-          showPopup("error", "Lỗi", message);
-          return false;
-        }
-      }
-    }
-    return true;
-  };
-
   const handleNextStep = (setstep = null) => {
-    if (!validateStep()) return;
-
     setTotalData({
       ...totalData,
       companyName: refs.companyName.current?.value || totalData.companyName,
@@ -89,14 +60,18 @@ const CreateWorkSheet = () => {
         refs.startWorkdate.current?.value || totalData.startWorkdate,
       workFinish: refs.workFinish.current?.value || totalData.workFinish,
       workDays: refs.workDays.current?.value || totalData.workDays,
-      salarys: refs.salarys.current?.value || totalData.salarys,
+      salarys: parseInt(refs.salarys.current?.value) || totalData.salarys,
       chuyencan: refs.chuyencan.current?.value || totalData.chuyencan,
       ngaychuyencan:
         refs.ngaychuyencan.current?.value || totalData.ngaychuyencan,
-      phucap1: refs.phucap1.current?.value || totalData.phucap1,
-      phucap2: refs.phucap2.current?.value || totalData.phucap2,
+      phucap1: parseInt(refs.phucap1.current?.value) || totalData.phucap1,
+      phucap2: parseInt(refs.phucap2.current?.value) || totalData.phucap2,
+      phucap3: parseInt(refs.phucap3.current?.value)|| totalData.phucap3,
+      calamviec: refs.calamviec.current?.value || totalData.calamviec,
+      ngaynghi: refs.ngaynghi.current?.value || totalData.ngaynghi,
+      luongtinhtangca: refs.luongtinhtangca.current?.value || totalData.luongtinhtangca,
+      luongkhongtinhtangca: refs.luongkhongtinhtangca.current?.value || totalData.luongkhongtinhtangca,
     });
-
     setCurrentStep((prevStep) => (setstep > 0 ? 3 : Math.min(prevStep + 1, 3)));
   };
 
@@ -126,7 +101,7 @@ const CreateWorkSheet = () => {
           setUserInfo((prevUser) => ({ ...prevUser, workSheet: response }));
         }
         setIsPopupOpen(false);
-      }, 1500);
+      }, 1000);
     } catch (e) {
       console.log(e);
       showPopup("error", "Lỗi", "Phát sinh lỗi khi lưu, vui lòng thử lại!");
@@ -210,7 +185,25 @@ const CreateWorkSheet = () => {
                 />
                 <div className="sub-input">VND</div>
               </div>
-              <div className="h-name">Ngày bắt đầu tính lương</div>
+              <div className="h-name">Tổng phụ cấp</div>
+              <div className="h-input">
+                <input
+                  ref={refs.phucap2}
+                  placeholder="lương phụ cấp..."
+                  defaultValue={totalData.phucap2 || 300000}
+                />
+                <div className="sub-input">VND</div>
+              </div>
+              <div className="h-name">Chuyên cần</div>
+              <div className="h-input">
+                <input
+                  ref={refs.chuyencan}
+                  placeholder="lương chuyên cần..."
+                  defaultValue={totalData.chuyencan || 300000}
+                />
+                <div className="sub-input">VND</div>
+              </div>
+              <div className="h-name">Ngày bắt đầu đi làm</div>
               <div className="h-input">
                 <input
                   ref={refs.startWorkdate}
@@ -230,7 +223,7 @@ const CreateWorkSheet = () => {
                   Quay lại
                 </button>
                 <button className="next" onClick={() => handleNextStep()}>
-                  Phụ cấp
+                  Nâng cao
                 </button>
               </div>
             </div>
@@ -241,49 +234,61 @@ const CreateWorkSheet = () => {
             <div className="logo">
               <img src={case_icon} alt="case icon" />
             </div>
-            <div className="title">Phụ cấp và ngày công</div>
+            <div className="title">Nâng cao</div>
             <div className="form-group">
-              <div className="h-name">Số ngày làm việc trong tháng</div>
+              <div className="h-name">Ca làm việc</div>
+              <div className="h-input">
+                <select
+                  ref={refs.calamviec}
+                  >
+                  <option value="HC">Hành chính</option>
+                  <option value="2Ca">Ca ngày/đêm</option>
+                  <option value="3Ca">3 ca</option>
+                </select>
+              </div>
+              <div className="h-name">Ngày nghỉ</div>
+              <div className="h-input">
+                <select
+                  ref={refs.ngaynghi}>
+                  <option value="CN">Chủ nhật (đi làm 200%)</option>
+                  <option value="T7CN">T7 + CN (đi làm 200%)</option>
+                </select>
+              </div>
+              <div className="h-name">Ngày chốt công</div>
+              <div className="h-input">
+                <input
+                  ref={refs.workFinish}
+                  placeholder="ngày chốt công..."
+                  defaultValue={totalData.workFinish || 15}
+                />
+                <div className="sub-input">Hàng tháng</div>
+              </div>
+              <div className="h-name">Ngày công trên tháng</div>
               <div className="h-input">
                 <input
                   ref={refs.workDays}
-                  placeholder="số ngày..."
-                  type="number"
+                  placeholder="số ngày công..."
                   defaultValue={totalData.workDays || 26}
                 />
+                <div className="sub-input">Ngày</div>
               </div>
-              <div className="h-name">Phụ cấp cố định</div>
+              <div className="h-name">Lương khác (tính vào tăng ca)</div>
               <div className="h-input">
                 <input
-                  ref={refs.phucap1}
-                  placeholder="phụ cấp cố định..."
-                  defaultValue={totalData.phucap1 || 300000}
-                />
-                <div className="sub-input">VND</div>
-              </div>
-              <div className="h-name">Phụ cấp tính theo ngày</div>
-              <div className="h-input">
-                <input
-                  ref={refs.phucap2}
-                  placeholder="phụ cấp theo ngày..."
-                  defaultValue={totalData.phucap2 || 15000}
-                />
-                <div className="sub-input">VND</div>
-              </div>
-              <div className="h-name">Số ngày tính phụ cấp</div>
-              <div className="h-input">
-                <input
-                  ref={refs.ngaychuyencan}
                   type="number"
-                  defaultValue={totalData.ngaychuyencan || 26}
+                  ref={refs.luongtinhtangca}
+                  placeholder="lương được tính tăng ca..."
+                  defaultValue={totalData.luongtinhtangca || 0}
                 />
+                <div className="sub-input">VND</div>
               </div>
-              <div className="h-name">Chuyển cần</div>
+              <div className="h-name">Lương khác (không tính vào tăng ca)</div>
               <div className="h-input">
                 <input
-                  ref={refs.chuyencan}
-                  placeholder="phụ cấp chuyển cần..."
-                  defaultValue={totalData.chuyencan || 300000}
+                  type="number"
+                  ref={refs.luongkhongtinhtangca}
+                  placeholder="lương không được tính tăng ca..."
+                  defaultValue={totalData.luongkhongtinhtangca || 0}
                 />
                 <div className="sub-input">VND</div>
               </div>
@@ -299,7 +304,7 @@ const CreateWorkSheet = () => {
                   Quay lại
                 </button>
                 <button className="next" onClick={() => handleNextStep(3)}>
-                  Xem trước
+                  Hoàn thành
                 </button>
               </div>
             </div>
@@ -310,9 +315,8 @@ const CreateWorkSheet = () => {
             <div className="logo">
               <img src={verified} alt="verified icon" />
             </div>
-            <div className="title">Xem trước và xác nhận</div>
             <div className="message">
-              Xem lại thông tin và xác nhận tạo bảng lương
+              Kiểm tra lại thông tin và xác nhận tạo!
             </div>
             <div className="summary">
               <table>
@@ -327,20 +331,26 @@ const CreateWorkSheet = () => {
                   </tr>
                   {totalData.chuyencan ? (
                     <tr>
-                      <td>Ngày chốt công</td>
+                      <td>Chuyên cần</td>
                       <td>{totalData.chuyencan}</td>
-                    </tr>
-                  ) : null}
-                  {totalData.phucap1 ? (
-                    <tr>
-                      <td>Ngày chốt công</td>
-                      <td>{totalData.phucap1}</td>
                     </tr>
                   ) : null}
                   {totalData.phucap2 ? (
                     <tr>
-                      <td>Ngày chốt công</td>
+                      <td>Phụ cấp</td>
                       <td>{totalData.phucap2}</td>
+                    </tr>
+                  ) : null}
+                  {totalData.luongtinhtangca ? (
+                    <tr>
+                      <td>Lương khác (tính tăng ca)</td>
+                      <td>{totalData.luongtinhtangca}</td>
+                    </tr>
+                  ) : null}
+                  {totalData.luongkhongtinhtangca ? (
+                    <tr>
+                      <td>Lương khác (0 tính tăng ca)</td>
+                      <td>{totalData.luongkhongtinhtangca}</td>
                     </tr>
                   ) : null}
                   {totalData.workFinish ? (
@@ -351,21 +361,20 @@ const CreateWorkSheet = () => {
                   ) : null}
                   {totalData.workDays ? (
                     <tr>
-                      <td>Ngày chốt công</td>
+                      <td>Ngày công</td>
                       <td>{totalData.workDays}</td>
                     </tr>
                   ) : null}
                   <tr>
                     <td>Tổng lương</td>
                     <td>
-                      {parseInt(totalData.salarys) +
-                      parseInt(totalData.chuyencan)
-                        ? totalData.chuyencan
-                        : 0 + parseInt(totalData.phucap1)
-                        ? totalData.phucap1
-                        : 0 + parseInt(totalData.phucap2)
-                        ? totalData.phucap2
-                        : 0}
+                      {
+                        parseInt(totalData.salarys)
+                        + parseInt(totalData.chuyencan)
+                        + parseInt(totalData.phucap2)
+                        + parseInt(totalData.luongkhongtinhtangca)
+                        + parseInt(totalData.luongtinhtangca)
+                      }
                     </td>
                   </tr>
                 </tbody>

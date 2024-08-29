@@ -1,7 +1,7 @@
 // src/components/ApiClient.js
 const ApiClient = (host = "localhost:5000", port = 5000) => {
-  // const baseUrl = `http://${host}/api`;
-  const baseUrl = `https://ipays.vn/api`;
+  const baseUrl = `http://${host}/api`;
+  // const baseUrl = `https://ipays.vn/api`;
 
   return {
     get: async (endpoint) => {

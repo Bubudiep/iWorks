@@ -50,13 +50,21 @@ const MoneyCard = () => {
     var fixedSalary = 0;
     var workHours=0, OT=0, CN=0;
     var songaycong=0;
+    var calamviec=0, ngaynghi=0;
+    if (userInfo.workSheet.items[0].Calamviec=="2Ca") calamviec = 1;
+    if (userInfo.workSheet.items[0].NgayNghi=="T7CN") ngaynghi = 1;
     workRecord.forEach(record => {
       if (record.isWorking) {
         songaycong++;
         var thisWorktime=8;
-        if (new Date(record.workDate).getDay()==0){ // Đi làm chủ nhật
+        if (
+          ngaynghi==0&&new Date(record.workDate).getDay()==0 ||
+          ngaynghi==1&&new Date(record.workDate).getDay()==0 ||
+          ngaynghi==1&&new Date(record.workDate).getDay()==6
+        ){ // Đi làm chủ nhật
           if (record.startTime!=null && record.endTime!=null) {
             thisWorktime=(new Date(record.endTime)-new Date(record.startTime)) / (1000 * 60 * 60);
+            thisWorktime=thisWorktime-1 // giờ giải lao
           } else {
             thisWorktime = thisWorktime-record.lateTime;
           }
@@ -64,9 +72,11 @@ const MoneyCard = () => {
         } else { // Đi làm ngày thường
           if (record.startTime!=null && record.endTime!=null) {
             thisWorktime=(new Date(record.endTime)-new Date(record.startTime)) / (1000 * 60 * 60);
+            thisWorktime=thisWorktime-1 // giờ giải lao
           } else {
             thisWorktime = thisWorktime-record.lateTime;
           }
+          console.log(thisWorktime);
           workHours += thisWorktime;
         }
         OT+=record.overTime;
