@@ -24,7 +24,7 @@
         flex-direction: column;
         margin-top: 10px;
         gap: 5px;
-        margin-top: 260px;
+        margin-top: 110px;
         .message {
           font-weight: bold;
         }
@@ -172,8 +172,20 @@
           }
         }
         .h3 {
+          display: flex;
+          justify-content: space-between;
           font-weight: 600;
           padding: 0px 10px;
+          align-items: center;
+          .right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #1b71cc;
+            svg {
+              font-size: 0.7rem;
+            }
+          }
         }
         .h-items {
           .fast-check {
@@ -225,9 +237,9 @@
         gap: 10px;
         top: 0;
         z-index: 1;
-        padding-top: 50px;
+        padding-top: 35px;
         width: 100%;
-        height: 180px;
+        height: 100px;
         position: fixed;
         background-attachment: fixed;
         transition: all 0.2s;
@@ -238,8 +250,9 @@
         .user-container {
           display: flex;
           justify-content: space-between;
+          animation: slideDown 0.5s ease-in-out;
           .logo {
-            margin-top: 15px;
+            margin-top: 8px;
             width: 130px;
             padding-right: 10px;
             opacity: 0.4;
@@ -412,6 +425,7 @@
   }
 
   .lich-bangcong {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -475,9 +489,10 @@
     }
     .bangcong-thang {
       display: flex;
-      font-size: 0.75rem;
       justify-content: center;
       height: 25px;
+      align-items: center;
+      margin-top: 10px;
       .pre,
       .next {
         display: flex;
@@ -524,10 +539,13 @@
           position: relative;
           border-radius: 10px;
           color: #b3b3b3;
+          transition: all 0.3s;
+          svg {
+            animation: fadeIn 0.3s ease-in-out;
+          }
           &.active {
             background-color: #e9f3fd;
             color: #1181d3;
-            font-weight: 500;
             svg {
               font-size: 0.7rem;
               position: absolute;
@@ -585,12 +603,12 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    gap: 30px;
+    gap: 20px;
     .logo {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 150px;
+      width: 200px;
       img {
         width: 100%;
       }
@@ -618,14 +636,21 @@
       align-items: center;
       justify-content: center;
       width: 100%;
+      margin-top: 10px;
       button.accept {
         font-weight: 500;
         width: 90%;
         font-size: 0.9rem;
         background-color: #007bff;
         color: #fff;
-        padding: 13px 20px;
+        padding: 0px 20px;
         border-radius: 10px;
+        svg {
+          font-size: 20px !important;
+          padding: 15px 20px 15px 5px;
+          border-right: 1px solid #f1f1f1;
+          margin-right: 10px;
+        }
       }
     }
   }
@@ -822,6 +847,23 @@
     align-items: center;
     flex-direction: column;
     gap: 30px;
+    .error-image {
+      width: 50px;
+      height: 50px;
+    }
+    .retry {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 30px;
+      font-weight: 500;
+      .retry-message {
+        color: #009efa;
+      }
+      .error-message {
+        color: #e0400f;
+      }
+    }
     .logo {
       width: 80px;
       opacity: 0.5;
@@ -918,8 +960,49 @@
     width: 100%;
     height: 100%;
   }
-  .pd10{
+  .pd10 {
     padding: 10px;
+  }
+  .chitietCong {
+    background-color: #fff;
+    border-radius: 10px;
+    width: 90%;
+    z-index: 1;
+    .header {
+      padding: 5px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #0061c9;
+      border-bottom: 1px solid #d3d3d3;
+      .name {
+        padding: 5px;
+      }
+    }
+    .body {
+      padding: 10px;
+      .hr1 {
+        font-weight: 500;
+        font-size: 0.7rem;
+      }
+      .details_box {
+        padding: 0px 10px;
+        font-size: 0.7rem;
+        table {
+          width: 100%;
+          tr{
+            td{
+              line-height: 17px;
+              padding: 0; /* Đặt padding về 0 */
+              overflow: hidden; /* Ẩn nội dung vượt quá chiều cao */
+              &:last-child{
+                font-weight: 500;
+                text-align: right;
+              }
+            }
+          }
+        }
+      }
+    }
   }
   .show-card {
     width: 85%;
@@ -933,27 +1016,28 @@
     animation: slideUp 0.5s ease-in-out forwards;
     overflow: hidden;
     /* Áp dụng animation cho .step-box */
-    .form-table{
+    .form-table {
       padding: 5px 10px;
-      table{
+      table {
         width: 100%;
-        tr{
-          td{
+        tr {
+          td {
             position: relative;
-            &:first-child{
+            &:first-child {
               text-align: left;
               padding: 0px 5px;
             }
-            &:last-child{
+            &:last-child {
               text-align: right;
             }
-            input,select{
+            input,
+            select {
               border: 1px solid #e0e0e0;
               padding: 5px;
               border-radius: 5px;
               outline: none;
             }
-            .sub-input{
+            .sub-input {
               position: absolute;
               right: 10px;
               top: 10px;
@@ -962,7 +1046,7 @@
         }
       }
     }
-    &.mini{
+    &.mini {
       padding: 0px;
     }
     .step-box {
@@ -991,11 +1075,23 @@
       display: flex;
       align-items: center;
       font-weight: 500;
-      font-size: 1rem;
-      padding: 10px 10px 0px 10px;
+      font-size: 0.8rem;
+      padding: 5px 10px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.0823529412);
       color: #0394f5;
+      justify-content: space-between;
+      select {
+        color: #c9c9c9;
+        border: 1px solid #0002;
+        padding: 5px;
+        border-radius: 5px;
+        font-weight: 400;
+        font-size: 0.8rem;
+        background-color: #fff;
+        outline: none;
+      }
     }
-    .off{
+    .off {
       .title2 {
         color: #f57503;
       }
@@ -1056,6 +1152,7 @@
     .options {
       display: flex;
       .items {
+        height: 40px;
         border-top: 1px solid #00000015;
         flex: 1;
         display: flex;
@@ -1066,13 +1163,14 @@
         flex-wrap: nowrap;
         border-left: 1px solid #00000015;
         color: #0005;
-        .logo{
+        .logo {
           padding: 0px;
         }
-        .text{
+        .text {
           display: flex;
           gap: 10px;
           align-items: center;
+          font-weight: 500;
         }
         svg {
           color: rgba(156, 156, 156, 0.333);
@@ -1119,7 +1217,8 @@
     align-items: center;
     gap: 10px;
     color: #999;
-    input,select {
+    input,
+    select {
       border: 1px solid #dadada;
       border-radius: 8px;
       overflow: hidden !important;
@@ -1154,14 +1253,14 @@
     }
   }
 }
-.chitietluong{
+.chitietluong {
   display: flex;
   flex-direction: column;
-  .thongkeluong{
+  .thongkeluong {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    .tencongty{
+    .tencongty {
       display: flex;
       text-align: center;
       justify-content: center;
@@ -1172,23 +1271,23 @@
       box-shadow: 1px 2px 3px #0003;
       border-radius: 0px 0px 10px 10px;
     }
-    .chitiet{
+    .chitiet {
       display: flex;
       flex-direction: column;
       padding: 10px;
       gap: 5px;
-      .tieude{
+      .tieude {
         font-weight: 500;
       }
-      .thongke{
+      .thongke {
         background-color: #fff;
         border-radius: 10px;
         padding: 5px 0px;
-        .items{
+        .items {
           display: flex;
           justify-content: space-between;
           padding: 5px 10px;
-          .value{
+          .value {
             font-weight: 500;
           }
         }
@@ -1244,6 +1343,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: absolute;
+  z-index: 100;
+  background-color: #fff;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
 }
 .h5 {
   font-weight: 500;
@@ -1362,12 +1468,12 @@
 
 @keyframes slideDown {
   from {
-    transform: translateY(0);
-    opacity: 1;
+    transform: translateY(-5px);
+    opacity: 0;
   }
   to {
-    transform: translateY(5px);
-    opacity: 0;
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 @keyframes slideUp {
@@ -1521,4 +1627,7 @@ button {
   to {
     transform: rotate(360deg);
   }
+}
+.h220 {
+  height: 220px;
 }

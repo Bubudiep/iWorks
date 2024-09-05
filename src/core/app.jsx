@@ -2,13 +2,12 @@ import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { App, ZMPRouter, AnimationRoutes, SnackbarProvider } from "zmp-ui";
 import { RecoilRoot } from "recoil";
-import HomePage from "../app/index";
-import Index from "../app/tools/index";
-import Home from "../app/tools/home";
-import Work from "../app/tools/work";
-import Luong from "../app/tools/luong";
-import { Provider } from "react-redux";
-import { UserProvider } from "../app/context/userContext";
+import HomePage from "./index";
+import { UserProvider } from "./context/userContext";
+import Index from "./page/index";
+import Home from "./page/home";
+import Work from "./page/work";
+import Luong from "./page/luong";
 
 const MyApp = () => {
   return (
@@ -20,7 +19,8 @@ const MyApp = () => {
               <Routes>
                 <Route path="/" element={<HomePage />}>
                   <Route path="/" element={<Index />} />
-                  <Route path="/luong/:id" element={<Luong />} /> {/* Cập nhật đây */}
+                  <Route path="/luong/:id" element={<Luong />} />{" "}
+                  {/* Cập nhật đây */}
                   <Route path="/home" element={<Home />} />
                   <Route path="/work" element={<Work />} />
                 </Route>

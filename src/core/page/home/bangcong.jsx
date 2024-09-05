@@ -6,8 +6,8 @@ import {
   faAngleRight,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import ApiClient from "./api";
-import { useUser } from "../context/userContext";
+import ApiClient from "../../../components/api";
+import { useUser } from "../../context/userContext";
 import DayCell from "./dayCell";
 
 function toDate(today = new Date()) {
@@ -30,7 +30,7 @@ const Bangcong = () => {
   // Tạo dữ liệu cho tất cả các ngày trong tháng với trạng thái không active
   const allDaysData = Array.from({ length: daysInMonth }, (_, i) => ({
     date: i + 1,
-    active: 'idle',
+    active: "idle",
   }));
   const [daysData, setDaysData] = useState(allDaysData);
   const [isLoading, setIsLoading] = useState(false); // State để theo dõi trạng thái loading
@@ -45,7 +45,10 @@ const Bangcong = () => {
         const data = [];
         try {
           const response = await fetchs.gets(
-            "/workrecord?per_page=999&month="+(currentDate.getMonth()+1)+"&year="+currentDate.getFullYear(),
+            "/workrecord?per_page=999&month=" +
+              (currentDate.getMonth() + 1) +
+              "&year=" +
+              currentDate.getFullYear(),
             userInfo.login.token
           );
           if (response.items) {
@@ -62,7 +65,7 @@ const Bangcong = () => {
               if (matchingItem) {
                 return {
                   date: daydata.date,
-                  active: matchingItem.isWorking ? 'true' : 'false',
+                  active: matchingItem.isWorking ? "true" : "false",
                 };
               }
 
@@ -73,7 +76,7 @@ const Bangcong = () => {
         } catch (error) {
           console.log(error);
         } finally {
-          setInterval(setIsLoading(false),5000);
+          setIsLoading(false);
         }
       };
       fetchData();
@@ -115,13 +118,12 @@ const Bangcong = () => {
   }
   if (daysData.length > 0) {
     daysData.forEach(({ date, active }, index) => {
-      const inactive = active === "true" ? "active" : active === "false" ? "notactive" : "";
-      
-      const fulldate = toDate(new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        date
-      ));
+      const inactive =
+        active === "true" ? "active" : active === "false" ? "notactive" : "";
+
+      const fulldate = toDate(
+        new Date(currentDate.getFullYear(), currentDate.getMonth(), date)
+      );
       days.push(
         <DayCell
           key={date}
@@ -169,30 +171,24 @@ const Bangcong = () => {
           <FontAwesomeIcon icon={faAngleRight} />
         </button>
       </div>
-      {isLoading ? (
-        <div className="ninebox">
-          <div className="loading-spinner"></div>
-        </div>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              {[
-                "Thứ 2",
-                "Thứ 3",
-                "Thứ 4",
-                "Thứ 5",
-                "Thứ 6",
-                "Thứ 7",
-                "Chủ nhật",
-              ].map((day) => (
-                <th key={day}>{day}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>{weeks}</tbody>
-        </table>
-      )}
+      <table>
+        <thead>
+          <tr>
+            {[
+              "Thứ 2",
+              "Thứ 3",
+              "Thứ 4",
+              "Thứ 5",
+              "Thứ 6",
+              "Thứ 7",
+              "Chủ nhật",
+            ].map((day) => (
+              <th key={day}>{day}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>{weeks}</tbody>
+      </table>
     </div>
   );
 };

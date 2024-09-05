@@ -44,8 +44,8 @@ const CreateWorkSheet = () => {
     startWorkdate: useRef(null),
     chuyencan: useRef(300000),
     ngaychuyencan: useRef(26),
-    calamviec: useRef(null),
-    ngaynghi: useRef(null),
+    calamviec: useRef("HC"),
+    ngaynghi: useRef("CN"),
     luongtinhtangca: useRef(0),
     luongkhongtinhtangca: useRef(0),
   };
@@ -64,13 +64,13 @@ const CreateWorkSheet = () => {
       chuyencan: refs.chuyencan.current?.value || totalData.chuyencan,
       ngaychuyencan:
         refs.ngaychuyencan.current?.value || totalData.ngaychuyencan,
-      phucap1: parseInt(refs.phucap1.current?.value) || totalData.phucap1,
-      phucap2: parseInt(refs.phucap2.current?.value) || totalData.phucap2,
-      phucap3: parseInt(refs.phucap3.current?.value)|| totalData.phucap3,
+      phucap1: parseInt(refs.phucap1.current?.value) || totalData.phucap1 || 0,
+      phucap2: parseInt(refs.phucap2.current?.value) || totalData.phucap2 || 0,
+      phucap3: parseInt(refs.phucap3.current?.value)|| totalData.phucap3 || 0,
       calamviec: refs.calamviec.current?.value || totalData.calamviec,
       ngaynghi: refs.ngaynghi.current?.value || totalData.ngaynghi,
-      luongtinhtangca: refs.luongtinhtangca.current?.value || totalData.luongtinhtangca,
-      luongkhongtinhtangca: refs.luongkhongtinhtangca.current?.value || totalData.luongkhongtinhtangca,
+      luongtinhtangca: refs.luongtinhtangca.current?.value || totalData.luongtinhtangca || 0,
+      luongkhongtinhtangca: refs.luongkhongtinhtangca.current?.value || totalData.luongkhongtinhtangca || 0,
     });
     setCurrentStep((prevStep) => (setstep > 0 ? 3 : Math.min(prevStep + 1, 3)));
   };
@@ -369,11 +369,11 @@ const CreateWorkSheet = () => {
                     <td>Tổng lương</td>
                     <td>
                       {
-                        parseInt(totalData.salarys)
-                        + parseInt(totalData.chuyencan)
-                        + parseInt(totalData.phucap2)
-                        + parseInt(totalData.luongkhongtinhtangca)
-                        + parseInt(totalData.luongtinhtangca)
+                        (parseInt(totalData.salarys))
+                        + (totalData.chuyencan&&parseInt(totalData.chuyencan))
+                        + (totalData.phucap2&&parseInt(totalData.phucap2))
+                        + (totalData.luongkhongtinhtangca&&parseInt(totalData.luongkhongtinhtangca))
+                        + (totalData.luongtinhtangca&&parseInt(totalData.luongtinhtangca))
                       }
                     </td>
                   </tr>

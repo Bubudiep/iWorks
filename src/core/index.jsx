@@ -1,9 +1,7 @@
 import React, { Suspense } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { List, Page, Icon, useNavigate } from "zmp-ui";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as icon from "@fortawesome/free-solid-svg-icons";
-
 const botItems = [
   {
     icon: <FontAwesomeIcon icon={icon.faHouse} />,
@@ -17,7 +15,6 @@ const botItems = [
   },
 ];
 const HomePage = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   return (
     <div className="home-container">
