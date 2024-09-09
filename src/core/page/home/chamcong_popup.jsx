@@ -14,18 +14,18 @@ const BangcongChitiet = ({ date }) => {
   const [loading3, setLoading3] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
-  const [startTime, setStartTime] = useState("08:00");
-  const [endTime, setEndTime] = useState("17:00");
+  const [startTime, setStartTime] = useState(date + " 08:00");
+  const [endTime, setEndTime] = useState(date + " 17:00");
   const [overTime, setOverTime] = useState(0);
   const [lateTime, setLateTime] = useState(0);
-  const [leaveType, setLeaveType] = useState(1);
+  const [leaveType, setLeaveType] = useState(0);
   const [salaryRatio, setSalaryRatio] = useState(100);
   const [dateId, setDateId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(false);
 
   useEffect(() => {
     if (date) checkDate(date);
   }, [date]);
-
   const handleChamCongNgay = async () => {
     setLoading2(true);
     try {
@@ -36,10 +36,18 @@ const BangcongChitiet = ({ date }) => {
       );
       if (chamcong?.result === "pass") {
         const response = await fetchs.gets(
-          "/worksheet_list_details",
+          "/workrecord?per_page=999&month=" +
+            (new Date(date).getMonth() + 1) +
+            "&year=" +
+            new Date(date).getFullYear(),
           userInfo.login.token
         );
-        setUserInfo((prevUser) => ({ ...prevUser, workSheet: response }));
+        await response.items.forEach((details) => {
+          if (details.workDate == date) {
+            setDateId(details.id);
+          }
+        });
+        setUserInfo((prevUser) => ({ ...prevUser, reCord: response.items }));
         setShowForm(true);
         setIsWorking(true);
       }
@@ -60,10 +68,18 @@ const BangcongChitiet = ({ date }) => {
       );
       if (chamcong?.result === "pass") {
         const response = await fetchs.gets(
-          "/worksheet_list_details",
+          "/workrecord?per_page=999&month=" +
+            (new Date(date).getMonth() + 1) +
+            "&year=" +
+            new Date(date).getFullYear(),
           userInfo.login.token
         );
-        setUserInfo((prevUser) => ({ ...prevUser, workSheet: response }));
+        await response.items.forEach((details) => {
+          if (details.workDate == date) {
+            setDateId(details.id);
+          }
+        });
+        setUserInfo((prevUser) => ({ ...prevUser, reCord: response.items }));
         setShowForm(true);
         setIsWorking(false);
       }
@@ -86,10 +102,8 @@ const BangcongChitiet = ({ date }) => {
         const record = response.items[0];
         setIsWorking(record.isWorking);
         setDateId(record.id);
-        if (record.startTime)
-          setStartTime(record.startTime.split(" ")[1].slice(0, 5));
-        if (record.endTime)
-          setEndTime(record.endTime.split(" ")[1].slice(0, 5));
+        if (record.startTime) setStartTime(record.startTime.replace(":00", ""));
+        if (record.endTime) setEndTime(record.endTime.replace(":00", ""));
         setOverTime(record.overTime || 0);
         setLateTime(record.lateTime || 0);
         setShowForm(true);
@@ -120,8 +134,8 @@ const BangcongChitiet = ({ date }) => {
     setLoading2(true);
     try {
       const updateData = {
-        startTime: `${date} ${startTime}:00`,
-        endTime: `${date} ${endTime}:00`,
+        startTime: (startTime + ":00").replace("T", " "),
+        endTime: (endTime + ":00").replace("T", " "),
         overTime,
         lateTime,
       };
@@ -131,10 +145,17 @@ const BangcongChitiet = ({ date }) => {
         userInfo.login.token
       );
       const response = await fetchs.gets(
-        "/worksheet_list_details",
+        "/workrecord?per_page=999&month=" +
+          (new Date(date).getMonth() + 1) +
+          "&year=" +
+          new Date(date).getFullYear(),
         userInfo.login.token
       );
-      setUserInfo((prevUser) => ({ ...prevUser, workSheet: response }));
+      setUserInfo((prevUser) => ({ ...prevUser, reCord: response.items }));
+      console.log(userInfo);
+      await setSuccessMessage("Cập nhật thành công!");
+      setInterval(() => setSuccessMessage(false), 2000);
+      // Set success message
     } catch (error) {
       console.error("Error updating work record:", error);
     } finally {
@@ -148,7 +169,7 @@ const BangcongChitiet = ({ date }) => {
 
   return (
     showPopup && (
-      <div className="show-card mini">
+      <div className="show-card w90 mini">
         {loading ? (
           <div className="flex acenter message2">
             <div className="loading-spinner"></div>
@@ -168,13 +189,16 @@ const BangcongChitiet = ({ date }) => {
                 </div>
               </div>
               <div className="form-table">
+                {successMessage && (
+                  <div className="success-msg">{successMessage}</div>
+                )}
                 <table>
                   <tbody>
                     <tr>
                       <td>Giờ vào</td>
                       <td>
                         <input
-                          type="time"
+                          type="datetime-local"
                           value={startTime}
                           onChange={(e) => setStartTime(e.target.value)}
                         />
@@ -184,7 +208,7 @@ const BangcongChitiet = ({ date }) => {
                       <td>Giờ ra</td>
                       <td>
                         <input
-                          type="time"
+                          type="datetime-local"
                           value={endTime}
                           onChange={(e) => setEndTime(e.target.value)}
                         />
@@ -216,16 +240,16 @@ const BangcongChitiet = ({ date }) => {
                 </table>
               </div>
               <div className="options">
-                <div className="items active" onClick={handleUpdatedilam}>
-                  <div className="text">
-                    {loading2 && <div className="loading-spinner"></div>}
-                    Lưu lại
-                  </div>
-                </div>
                 <div className="items off" onClick={handleNghihomnay}>
                   <div className="text">
                     {loading3 && <div className="loading-spinner"></div>}
                     Nghỉ
+                  </div>
+                </div>
+                <div className="items active" onClick={handleUpdatedilam}>
+                  <div className="text">
+                    {loading2 && <div className="loading-spinner"></div>}
+                    Lưu lại
                   </div>
                 </div>
               </div>
@@ -253,40 +277,44 @@ const BangcongChitiet = ({ date }) => {
                           value={leaveType}
                           onChange={(e) => setLeaveType(Number(e.target.value))}
                         >
-                          <option value={1}>Có phép</option>
                           <option value={0}>Không phép</option>
+                          <option value={1}>Có phép</option>
                           <option value={2}>Hưởng lương</option>
                           <option value={3}>Nghỉ ốm</option>
                         </select>
                       </td>
                     </tr>
-                    <tr>
-                      <td>Hưởng lương</td>
-                      <td>
-                        <input
-                          type="number"
-                          value={salaryRatio}
-                          onChange={(e) =>
-                            setSalaryRatio(Number(e.target.value))
-                          }
-                        />
-                        <div className="sub-input">%</div>
-                      </td>
-                    </tr>
+                    {leaveType === 2 ? (
+                      <tr>
+                        <td>Hưởng lương</td>
+                        <td>
+                          <input
+                            type="number"
+                            value={salaryRatio}
+                            onChange={(e) =>
+                              setSalaryRatio(Number(e.target.value))
+                            }
+                          />
+                          <div className="sub-input">%</div>
+                        </td>
+                      </tr>
+                    ) : (
+                      ""
+                    )}
                   </tbody>
                 </table>
               </div>
               <div className="options">
-                <div className="items active" onClick={handleUpdatengay}>
-                  <div className="text">
-                    {loading3 && <div className="loading-spinner"></div>}
-                    Lưu lại
-                  </div>
-                </div>
                 <div className="items active" onClick={handleChamCongNgay}>
                   <div className="text">
                     {loading2 && <div className="loading-spinner"></div>}
                     Đi làm
+                  </div>
+                </div>
+                <div className="items active" onClick={handleUpdatengay}>
+                  <div className="text">
+                    {loading3 && <div className="loading-spinner"></div>}
+                    Lưu lại
                   </div>
                 </div>
               </div>
@@ -297,16 +325,16 @@ const BangcongChitiet = ({ date }) => {
             <div className="title2">{title}</div>
             <div className="message2">{message}</div>
             <div className="options">
-              <div className="items active" onClick={handleChamCongNgay}>
-                <div className="text">
-                  {loading2 && <div className="loading-spinner"></div>}
-                  Đi làm
-                </div>
-              </div>
               <div className="items off" onClick={handleNghihomnay}>
                 <div className="text">
                   {loading3 && <div className="loading-spinner"></div>}
                   Nghỉ
+                </div>
+              </div>
+              <div className="items active" onClick={handleChamCongNgay}>
+                <div className="text">
+                  {loading2 && <div className="loading-spinner"></div>}
+                  Đi làm
                 </div>
               </div>
             </div>

@@ -15,7 +15,10 @@ function toDate() {
   console.log(`${year}-${month}-${date}`);
   return `${year}-${pad(month, 2)}-${pad(date, 2)}`;
 }
-let luongHomnay = 0,chuyenCan = 0,tangCa = 0, phuCapkhac=0;
+let luongHomnay = 0,
+  chuyenCan = 0,
+  tangCa = 0,
+  phuCapkhac = 0;
 const TodayWork = () => {
   const { userInfo, setUserInfo } = useUser();
   const [loading, setLoading] = useState(false);
@@ -47,27 +50,28 @@ const TodayWork = () => {
     }
   };
   const checkWorkmoney = () => {
-    luongHomnay = 0,chuyenCan = 0,tangCa = 0, phuCapkhac=0;
-    if (userInfo?.workSheet?.items.length > 0) {
-      var totalSalary=0, fixedSalary=0;
-      userInfo.workSheet.items[0].WorkSalary.forEach(items=>{
-        if (items.isMonthly==false){
-          totalSalary+=items.Salary;
+    (luongHomnay = 0), (chuyenCan = 0), (tangCa = 0), (phuCapkhac = 0);
+    if (userInfo.workSheet.length > 0) {
+      var totalSalary = 0,
+        fixedSalary = 0;
+      userInfo.workSheet.WorkSalary.forEach((items) => {
+        if (items.isMonthly == false) {
+          totalSalary += items.Salary;
         } else {
-          if (items.SalaryName=="Chuyên cần"){
-            fixedSalary+=items.Salary
+          if (items.SalaryName == "Chuyên cần") {
+            fixedSalary += items.Salary;
           } else {
-            phuCapkhac+=items.Salary
+            phuCapkhac += items.Salary;
           }
         }
-      })
+      });
       userInfo?.workSheet?.items[0]?.WorkRecord.forEach(async (record) => {
         if (record.workDate == toDate()) {
-          tangCa=(record.overTime)*Math.round(totalSalary/26/8)
+          tangCa = record.overTime * Math.round(totalSalary / 26 / 8);
         }
       });
-      luongHomnay=Math.round(totalSalary/26);
-      chuyenCan=fixedSalary;
+      luongHomnay = Math.round(totalSalary / 26);
+      chuyenCan = fixedSalary;
     }
   };
   checkWorkmoney();
@@ -75,13 +79,16 @@ const TodayWork = () => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
-    }).format(amount).replace("₫","VND").replaceAll(".",",");;
+    })
+      .format(amount)
+      .replace("₫", "VND")
+      .replaceAll(".", ",");
   };
   return (
     <div className="pd0x10">
       <div className="message-container">
         <div className="message">
-        <div className="content">Hôm nay bạn có đi làm không?</div>
+          <div className="content">Hôm nay bạn có đi làm không?</div>
           <div className="flex g5">
             <div className="card">
               <div className="name">Tiền lương</div>

@@ -44,14 +44,30 @@ const Bangcong = () => {
       const fetchData = async () => {
         const data = [];
         try {
-          const response = await fetchs.gets(
-            "/workrecord?per_page=999&month=" +
-              (currentDate.getMonth() + 1) +
-              "&year=" +
-              currentDate.getFullYear(),
-            userInfo.login.token
-          );
+          let response = {};
+          if (userInfo.month == currentDate.getMonth() + 1) {
+            response.items = userInfo.reCord;
+          } else {
+            response = await fetchs.gets(
+              "/workrecord?per_page=999&month=" +
+                (currentDate.getMonth() + 1) +
+                "&year=" +
+                currentDate.getFullYear(),
+              userInfo.login.token
+            );
+          }
+          console.log(response.items);
           if (response.items) {
+            if (
+              !userInfo.reCord ||
+              JSON.stringify(userInfo.reCord) !== JSON.stringify(response.items)
+            ) {
+              setUserInfo((prevUser) => ({
+                ...prevUser,
+                month: currentDate.getMonth() + 1,
+                reCord: response.items,
+              }));
+            }
             const updatedDaysData = allDaysData.map((daydata) => {
               const date = new Date(
                 currentDate.getFullYear(),

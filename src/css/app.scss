@@ -9,24 +9,60 @@
   flex-direction: column;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  input,
+  select {
+    background-color: transparent;
+  }
   .home-body {
     display: flex;
     flex-direction: column;
     flex: 1;
     height: calc(100% - 9%);
-    overflow: auto;
-    padding-bottom: 10px;
+    overflow: hidden;
     .body-container {
       display: flex;
       flex-direction: column;
+      height: 100%;
       .body-main {
         display: flex;
         flex-direction: column;
         margin-top: 10px;
-        gap: 5px;
-        margin-top: 110px;
+        margin-top: 100px;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch; /* Kích hoạt cuộn mượt trên iOS */
+        scroll-behavior: smooth; /* Cuộn mượt */
+        scroll-snap-type: y mandatory; /* Cuộn dọc, dừng tại các điểm snap */
+        .snap {
+          scroll-snap-align: start;
+          padding: 10px 10px 5px 10px !important;
+        }
         .message {
           font-weight: bold;
+        }
+        .fast-list {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr); /* 3 cột đều nhau */
+          gap: 10px; /* Khoảng cách giữa các item */
+          background-color: #fff;
+          border-radius: 10px;
+          padding: 10px 5px;
+          box-shadow: 1px 2px 3px #0003;
+          .items {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            align-items: center;
+            .logo {
+              width: 40px;
+              height: 40px;
+              border-radius: 10px;
+              background-color: #c4e2ff;
+            }
+            .name {
+              font-size: 0.7rem;
+              color: #778291;
+            }
+          }
         }
         .extension-list {
           display: grid;
@@ -56,8 +92,17 @@
           box-shadow: 1px 1px 3px #0003;
           border-radius: 10px;
           animation: fadeIn 0.5s ease-in-out;
+          .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            img {
+              margin-top: 8px;
+              width: 50px;
+            }
+          }
           &.single {
-            width: 80%;
+            width: 88%;
           }
           .options2 {
             position: absolute;
@@ -125,7 +170,7 @@
               font-weight: 500;
             }
             .content {
-              margin-top: 10px;
+              padding: 3px;
               color: #033e8c;
               display: flex;
               justify-content: center;
@@ -174,9 +219,13 @@
         .h3 {
           display: flex;
           justify-content: space-between;
-          font-weight: 600;
-          padding: 0px 10px;
+          font-weight: 500;
+          padding: 2px 10px;
           align-items: center;
+          color: #0250b6;
+          .name {
+            padding: 5px 0px;
+          }
           .right {
             display: flex;
             align-items: center;
@@ -524,10 +573,11 @@
       border-collapse: separate;
       border-spacing: 3px;
       th {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         font-weight: 600;
         padding: 5px 0px;
         width: 50px;
+        white-space: nowrap;
       }
       tr {
         td {
@@ -675,6 +725,9 @@
 }
 .top10 {
   margin-top: 10px;
+}
+.top5 {
+  margin-top: 5px;
 }
 
 @keyframes fadeIn {
@@ -953,6 +1006,42 @@
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.3s ease-in-out;
+  .ngaychotcong {
+    display: flex;
+    background: #fff;
+    height: 40px;
+    white-space: nowrap;
+    align-items: center;
+    padding: 5px;
+    border-radius: 10px;
+    justify-content: space-between;
+    color: #307bff;
+    .range-date {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      input[type="date"] {
+        width: 110px;
+        border: 1px solid #ddd;
+        padding: 5px;
+        border-radius: 5px;
+        outline: none;
+        &::-webkit-inner-spin-button,
+        &::-webkit-calendar-picker-indicator {
+          display: none;
+          -webkit-appearance: none;
+        }
+      }
+    }
+    .set-date {
+      display: flex;
+      height: 40px;
+      width: 50px;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+  }
   .detectOut {
     position: fixed;
     top: 0;
@@ -963,17 +1052,49 @@
   .pd10 {
     padding: 10px;
   }
+  .w90 {
+    width: 90%;
+  }
+  .z1 {
+    z-index: 1;
+  }
+  .more-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    color: #307bff;
+    font-weight: 500;
+    .text {
+      padding: 10px 15px;
+    }
+    .logo {
+      border-left: 1px solid #dddddd;
+      display: flex;
+      height: 50px;
+      width: 50px;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+  }
+  .mgt10 {
+    margin-top: 5px;
+  }
   .chitietCong {
     background-color: #fff;
     border-radius: 10px;
-    width: 90%;
+    width: 100%;
     z-index: 1;
     .header {
       padding: 5px;
       font-size: 0.8rem;
       font-weight: 500;
       color: #0061c9;
-      border-bottom: 1px solid #d3d3d3;
+      box-shadow: 0px 1px 3px #0003;
       .name {
         padding: 5px;
       }
@@ -984,19 +1105,128 @@
         font-weight: 500;
         font-size: 0.7rem;
       }
+      .ngaycong-dasboard {
+        display: flex;
+        padding: 5px;
+        align-items: center;
+        gap: 10px;
+        justify-content: space-evenly;
+        .box {
+          flex: 1;
+          white-space: nowrap;
+          padding: 7px;
+          color: #fff;
+          border-radius: 10px;
+          font-weight: 500;
+          display: flex;
+          gap: 5px;
+          flex-direction: column;
+          background: linear-gradient(146deg, #93c0f6, #006af5);
+          box-shadow: 1px 2px 3px #0003;
+          border: 2px solid #fff;
+          .title {
+            font-size: 0.7rem;
+            height: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+          }
+          .value {
+            display: flex;
+            justify-content: center;
+            font-size: 1.2rem;
+            gap: 3px;
+            align-items: baseline;
+            .unit {
+              font-size: 0.7rem;
+            }
+            padding-bottom: 5px;
+          }
+        }
+      }
       .details_box {
-        padding: 0px 10px;
         font-size: 0.7rem;
         table {
           width: 100%;
-          tr{
-            td{
+          border-collapse: separate;
+          border-spacing: 0px;
+          thead {
+            display: none;
+          }
+          tr {
+            th {
+              text-align: left;
+              font-weight: 500;
+              padding: 2px 5px; /* Đặt padding về 0 */
+              color: #999;
+            }
+            td {
+              border: 1px solid #dfdfdf;
+              border-left: hidden;
+              border-top: hidden;
               line-height: 17px;
-              padding: 0; /* Đặt padding về 0 */
+              padding: 5px; /* Đặt padding về 0 */
               overflow: hidden; /* Ẩn nội dung vượt quá chiều cao */
-              &:last-child{
+              .unit {
+                display: inline-block;
+                font-weight: 400;
+                font-size: 0.6rem;
+              }
+              &.righttx {
+                text-align: right;
+              }
+              &.catalog {
+                font-weight: 500;
+              }
+              &.num {
+                width: 30px;
+                text-align: center;
+                font-weight: 500;
+              }
+              &:last-child {
                 font-weight: 500;
                 text-align: right;
+              }
+              &:first-child {
+                border-left: 1px solid #dfdfdf;
+              }
+            }
+            &:first-child {
+              td {
+                border-top: 1px solid #dfdfdf;
+                &:first-child {
+                  border-top-left-radius: 5px;
+                }
+                &:last-child {
+                  border-top-right-radius: 5px;
+                }
+              }
+            }
+            &:last-child {
+              td {
+                &:first-child {
+                  border-bottom-left-radius: 5px;
+                }
+                &:last-child {
+                  border-bottom-right-radius: 5px;
+                }
+              }
+            }
+            &:nth-last-child(2) {
+              &.nosub {
+                td {
+                  &:first-child {
+                    border-bottom-left-radius: 5px;
+                  }
+                }
+              }
+            }
+            &.sub {
+              td {
+                &:first-child {
+                  border-left: hidden !important;
+                  border-bottom-left-radius: 0px;
+                }
               }
             }
           }
@@ -1005,7 +1235,6 @@
     }
   }
   .show-card {
-    width: 85%;
     display: flex;
     padding: 20px;
     background-color: #fff;
@@ -1096,11 +1325,10 @@
         color: #f57503;
       }
     }
-    .message {
+    .messagex {
       white-space: wrap;
       display: flex;
       color: #000;
-      font-size: 0.85rem;
       padding: 5px;
       color: #999;
     }
@@ -1207,6 +1435,7 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  padding: 10px;
   .h-name {
     color: #474a63;
     font-weight: 500;
@@ -1465,7 +1694,9 @@
     transform: translateX(0) rotate(0deg);
   }
 }
-
+.pd10 {
+  padding: 10px;
+}
 @keyframes slideDown {
   from {
     transform: translateY(-5px);
@@ -1576,6 +1807,7 @@ l {
         color: #22a5f1;
       }
       .message {
+        font-weight: 400 !important;
         color: #1c3c4e;
       }
       .logo {
@@ -1589,6 +1821,7 @@ l {
         color: #e95d2a;
       }
       .message {
+        font-weight: 400 !important;
         color: #e07c6a;
       }
       .logo {
@@ -1622,7 +1855,11 @@ button {
   animation: spin 1s linear infinite;
   margin-left: 8px;
 }
-
+.off {
+  .loading-spinner {
+    border-left-color: #e0806f;
+  }
+}
 @keyframes spin {
   to {
     transform: rotate(360deg);

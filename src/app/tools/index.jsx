@@ -44,7 +44,7 @@ const Index = () => {
             );
             setUserInfo((prevUser) => ({
               ...prevUser,
-              workSheet: response,
+              workSheet: response.items[0],
             }));
           } catch (error) {
             console.log(error);

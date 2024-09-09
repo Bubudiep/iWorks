@@ -16,6 +16,7 @@ const Index = () => {
   const [errorMessage, setErrorMessage] = useState(""); // Thông báo lỗi
   const navigate = useNavigate();
   const fetch = ApiClient();
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const fetchUserInfo = async (retry = 3) => {
     try {
@@ -33,9 +34,18 @@ const Index = () => {
               "/worksheet_list_details",
               userInfo.login.token
             );
+            const reCord = await fetch.gets(
+              "/workrecord?per_page=999&month=" +
+                (currentDate.getMonth() + 1) +
+                "&year=" +
+                currentDate.getFullYear(),
+              userInfo.login.token
+            );
             setUserInfo((prevUser) => ({
               ...prevUser,
-              workSheet: response,
+              month: currentDate.getMonth() + 1,
+              workSheet: response.items[0],
+              reCord: reCord.items,
             }));
           } catch (error) {
             console.log(error);
@@ -185,12 +195,14 @@ const Index = () => {
               </div>
             )}
             <div className="retry">
-              {retryCount > 0 && (
-                errorMessage ? 
-                <div className="error-message">{errorMessage}</div>
-                :
-                <div className="retry-message">Đang kết nối ({retryCount})</div>
-              )}
+              {retryCount > 0 &&
+                (errorMessage ? (
+                  <div className="error-message">{errorMessage}</div>
+                ) : (
+                  <div className="retry-message">
+                    Đang kết nối ({retryCount})
+                  </div>
+                ))}
             </div>
           </div>
         </div>
